@@ -304,6 +304,72 @@
       margin-top: 0.65rem;
     }
 
+    .scholar-import-callout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      background: var(--bg-muted);
+    }
+
+    .scholar-import-copy {
+      min-width: 0;
+    }
+
+    .scholar-import-eyebrow {
+      color: var(--primary-light);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .scholar-import-copy strong {
+      display: block;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+
+    .scholar-import-copy p {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+    }
+
+    .scholar-import-actions,
+    .bookmarklet-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .scholar-import-actions {
+      flex-shrink: 0;
+    }
+
+    .bookmarklet-link {
+      text-decoration: none;
+    }
+
+    .bookmarklet-code {
+      max-height: 9rem;
+      overflow: auto;
+      word-break: break-all;
+      user-select: all;
+    }
+
+    .guide-note {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
     .search-input-wrap {
       flex: 1;
       min-width: 280px;
@@ -1356,6 +1422,20 @@
         flex: 1;
         justify-content: center;
       }
+      .scholar-import-callout {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .scholar-import-actions,
+      .bookmarklet-actions {
+        width: 100%;
+      }
+      .scholar-import-actions > *,
+      .bookmarklet-actions > * {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+      }
       main .author-search-results {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -1868,6 +1948,20 @@
         </div>
         <p class="search-hint">Small spelling and transliteration differences are okay. Search by name, institution, or research field.</p>
 
+        <div class="scholar-import-callout">
+          <div class="scholar-import-copy">
+            <div class="scholar-import-eyebrow">Exact Google Scholar results</div>
+            <strong>Bring real photos from Scholar</strong>
+            <p>Use a bookmark on any Scholar author-search page. No API key, account, or payment required.</p>
+          </div>
+          <div class="scholar-import-actions">
+            <button class="btn-secondary" id="btnScholarImportGuide" type="button" aria-controls="helpModal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg>
+              Open import guide
+            </button>
+          </div>
+        </div>
+
         <!-- Live Author Search Results -->
         <div class="author-search-toolbar" id="authorSearchToolbar" style="display: none;">
           <span>Select up to <strong>3 scholars</strong> to compare their available metrics.</span>
@@ -2325,7 +2419,25 @@
           <li>Drag and drop that file into the <strong>Paste Raw HTML / Drop Page</strong> tab.</li>
         </ol>
 
-        <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--primary-light);">Method 3: 1-Click Console Scraper</h4>
+        <h4 id="scholarImportGuide" style="font-size: 0.95rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--primary-light);">Method 3: One-Click Scholar Result Import</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          This reads the visible author cards from a Google Scholar search page, including the real profile photo URL, and opens ScholarPulse with those exact results.
+        </p>
+        <ol style="font-size: 0.85rem; color: var(--text-muted); padding-left: 1.25rem; margin-bottom: 0.75rem; line-height: 1.6;">
+          <li>Desktop: drag <a id="scholarBookmarklet" class="bookmarklet-link" href="#">ScholarPulse Import</a> to your bookmarks bar.</li>
+          <li>Phone: long-press that link and save it as a bookmark. If your browser removes <code>javascript:</code>, edit the bookmark URL and paste the code below.</li>
+          <li>Open Google Scholar author-search results and tap the saved bookmark. ScholarPulse will open with the visible names, photos, and citations.</li>
+        </ol>
+        <div class="bookmarklet-actions">
+          <button class="btn-secondary" id="btnCopyScholarBookmarklet" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy bookmarklet code
+          </button>
+        </div>
+        <div class="code-box bookmarklet-code"><code id="scholarBookmarkletCode"></code></div>
+        <p class="guide-note">The bookmarklet only reads cards already visible in your current Scholar page. It does not use an API key or bypass Scholar access controls.</p>
+
+        <h4 style="font-size: 0.95rem; font-weight: 600; margin: 1rem 0 0.35rem; color: var(--primary-light);">Method 4: 1-Click Console Scraper</h4>
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
           Run this in DevTools Console on any Google Scholar tab to copy all papers to clipboard:
         </p>
@@ -2555,6 +2667,11 @@
       btnHelp: document.getElementById('btnHelp'),
       helpModal: document.getElementById('helpModal'),
       btnCloseHelp: document.getElementById('btnCloseHelp'),
+      btnScholarImportGuide: document.getElementById('btnScholarImportGuide'),
+      scholarImportGuide: document.getElementById('scholarImportGuide'),
+      scholarBookmarklet: document.getElementById('scholarBookmarklet'),
+      scholarBookmarkletCode: document.getElementById('scholarBookmarkletCode'),
+      btnCopyScholarBookmarklet: document.getElementById('btnCopyScholarBookmarklet'),
       authorSearchToolbar: document.getElementById('authorSearchToolbar'),
       compareSelectionCount: document.getElementById('compareSelectionCount'),
       btnCompareSelected: document.getElementById('btnCompareSelected'),
@@ -3141,6 +3258,80 @@
       if (value === null || value === undefined || value === '') return null;
       const number = Number(value);
       return Number.isFinite(number) ? number : null;
+    }
+
+    const SCHOLAR_IMPORT_TARGET = 'https://soheil-aghayani.github.io/ScholarPulse/';
+    const SCHOLAR_IMPORT_HASH_PREFIX = '#scholarpulse-import=';
+    const SCHOLAR_IMPORT_BOOKMARKLET = String.raw`javascript:(()=>{const clean=e=>(e?.innerText||e?.textContent||'').replace(/\s+/g,' ').trim();const cards=[...document.querySelectorAll('.gsc_1usr,.gs_ai_chpr')],results=[];for(const card of cards){const nameEl=card.querySelector('.gsc_1usr_name,.gs_ai_name'),name=clean(nameEl);if(!name)continue;const linkEl=nameEl?.querySelector('a')||card.querySelector('a[href*="user="]'),href=linkEl?.href||linkEl?.getAttribute('href')||'';let profileUrl='';try{profileUrl=href?new URL(href,location.href).href:''}catch(_){ }const match=profileUrl.match(/[?&]user=([A-Za-z0-9_-]+)/i),id=match?.[1]||profileUrl||name;const image=card.querySelector('.gsc_1usr_photo img,.gs_ai_pho img,img');let avatar='';try{const src=image?.getAttribute('data-src')||image?.getAttribute('data-original')||image?.currentSrc||image?.getAttribute('src')||'';avatar=src?new URL(src,location.href).href:''}catch(_){ }const citationText=clean(card.querySelector('.gsc_1usr_cby,.gs_ai_cby')),citationMatch=citationText.match(/(?:cited\s+by|citations?)\s*:?\s*([\d,]+)/i),interests=[...card.querySelectorAll('.gsc_1usr_int a,.gs_ai_int a')].map(clean).filter(Boolean);if(results.some(item=>item.id===id))continue;results.push({id,name,affiliation:clean(card.querySelector('.gsc_1usr_aff,.gs_ai_aff')),email:clean(card.querySelector('.gsc_1usr_eml,.gs_ai_eml')),interests,works_count:null,citations:citationMatch?Number(citationMatch[1].replace(/,/g,'')):null,h_index:null,citation_label:'cited by',avatar:avatar||null,scholarLink:profileUrl,source:'google_scholar_import'})}if(!results.length){alert('Open a Google Scholar author-search results page before running ScholarPulse Import.');return}const pageUrl=new URL(location.href),query=pageUrl.searchParams.get('mauthors')||pageUrl.searchParams.get('q')||clean(document.querySelector('input[name="mauthors"],input[name="q"]')),target='${SCHOLAR_IMPORT_TARGET}#scholarpulse-import='+encodeURIComponent(JSON.stringify({type:'scholarpulse-author-results',version:1,query,results:results.slice(0,12)}));location.href=target})();`;
+
+    function normalizeScholarImportResult(candidate, index) {
+      if (!candidate || typeof candidate !== 'object') return null;
+      const name = String(candidate.name || '').trim();
+      if (!name) return null;
+
+      const httpUrl = (value) => {
+        const normalized = String(value || '').trim();
+        return /^https?:\/\//i.test(normalized) ? normalized : '';
+      };
+      const avatar = [candidate.avatar, candidate.avatarUrl, candidate.image_url, candidate.image_thumbnail_url]
+        .map(httpUrl)
+        .find(Boolean) || null;
+      const scholarLink = httpUrl(candidate.scholarLink || candidate.link);
+
+      return {
+        id: String(candidate.id || scholarLink || `imported-${index + 1}`).trim(),
+        name,
+        affiliation: String(candidate.affiliation || '').trim(),
+        email: String(candidate.email || '').trim(),
+        interests: Array.isArray(candidate.interests) ? candidate.interests.map(String).filter(Boolean) : [],
+        works_count: numberOrNull(candidate.works_count),
+        citations: numberOrNull(candidate.citations),
+        h_index: numberOrNull(candidate.h_index),
+        citation_label: String(candidate.citation_label || 'cited by'),
+        avatar,
+        scholarLink,
+        source: 'google_scholar_import'
+      };
+    }
+
+    function importScholarResultsFromHash() {
+      if (!window.location.hash.startsWith(SCHOLAR_IMPORT_HASH_PREFIX)) return false;
+
+      const clearImportHash = () => {
+        window.history.replaceState(null, document.title, `${window.location.pathname}${window.location.search}`);
+      };
+
+      try {
+        const encodedPayload = window.location.hash.slice(SCHOLAR_IMPORT_HASH_PREFIX.length);
+        const payload = JSON.parse(decodeURIComponent(encodedPayload));
+        if (payload?.type !== 'scholarpulse-author-results' || !Array.isArray(payload.results)) {
+          throw new Error('Unsupported Scholar import payload');
+        }
+
+        const authors = payload.results
+          .map(normalizeScholarImportResult)
+          .filter(Boolean)
+          .slice(0, 12);
+        if (!authors.length) throw new Error('Scholar import contained no authors');
+
+        const query = String(payload.query || '').trim();
+        if (query && dom.authorSearchInput) dom.authorSearchInput.value = query;
+        if (dom.authorSearchResults) dom.authorSearchResults.style.display = 'grid';
+        renderAuthorSearchResults(authors, query || 'Imported Google Scholar results');
+        clearImportHash();
+        showToast(`Imported ${authors.length} Google Scholar results with photos.`);
+        return true;
+      } catch (error) {
+        clearImportHash();
+        showToast('The Scholar import link is invalid or expired.');
+        return false;
+      }
+    }
+
+    function setupScholarImport() {
+      if (!dom.scholarBookmarklet) return;
+      dom.scholarBookmarklet.href = SCHOLAR_IMPORT_BOOKMARKLET;
+      if (dom.scholarBookmarkletCode) dom.scholarBookmarkletCode.textContent = SCHOLAR_IMPORT_BOOKMARKLET;
     }
 
     function extractScholarUserId(profileUrl) {
@@ -3979,6 +4170,19 @@
       dom.helpModal.addEventListener('click', (e) => {
         if (e.target === dom.helpModal) dom.helpModal.classList.remove('show');
       });
+      setupScholarImport();
+      dom.btnScholarImportGuide.addEventListener('click', () => {
+        dom.helpModal.classList.add('show');
+        dom.scholarImportGuide?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      dom.scholarBookmarklet.addEventListener('click', (event) => {
+        event.preventDefault();
+        showToast('Drag or long-press this link to save it as a bookmark.');
+      });
+      dom.btnCopyScholarBookmarklet.addEventListener('click', () => {
+        copyToClipboard(SCHOLAR_IMPORT_BOOKMARKLET);
+        showToast('Bookmarklet code copied to clipboard.');
+      });
       document.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
         if (dom.helpModal.classList.contains('show')) dom.helpModal.classList.remove('show');
@@ -4769,6 +4973,7 @@
       renderSavedScholars();
       updateCompareSelectionUI();
       updateSortButtonUI();
+      importScholarResultsFromHash();
     });
   </script>
 </body>

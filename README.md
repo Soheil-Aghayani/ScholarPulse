@@ -106,6 +106,10 @@ You can confirm that the backend is awake by opening `https://YOUR-SERVICE.onren
 
 The app does not require an OpenAlex API key or a paid API key, and it never asks users for bank-card information. The free Render service can sleep after inactivity, so its first request may take a little time to wake up. Google Scholar can also challenge anonymous server requests; when that happens, ScholarPulse clearly labels the free OpenAlex fallback rather than pretending the lists are identical. See Render's [free instance documentation](https://render.com/docs/free) and [FAQ](https://render.com/docs/faq) for current account and plan conditions.
 
+### Exact Scholar results and photos without a paid API
+
+When Google Scholar blocks the hosted backend, use the **Open import guide** button in the Search tab. Save the ScholarPulse bookmarklet, open a Google Scholar author-search page, and run the bookmarklet. It sends the visible result cards to the free GitHub Pages interface through the URL fragment, preserving the names, profile photos, affiliations, and citation counts without an API key or payment.
+
 ---
 
 ## 📁 Project Structure
