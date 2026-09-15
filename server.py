@@ -19,7 +19,7 @@ try:
 except ImportError:
     HAS_DOCX = False
 
-PORT = 5000
+PORT = int(os.environ.get('PORT', '5000'))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 def resolve_full_title(raw_title):
@@ -417,6 +417,156 @@ def get_search_variants(q):
     return list(dict.fromkeys(variants[:1] + priority_variants + variants[1:]))[:24]
 
 
+SCHOLAR_BASE_URL = "https://scholar.google.com"
+
+
+def _clean_html_fragment(fragment):
+    """Turn a small Scholar markup fragment into readable plain text."""
+    if not fragment:
+        return ""
+    fragment = re.sub(r'<br\s*/?>', ' ', fragment, flags=re.I)
+    text = re.sub(r'<[^>]+>', ' ', fragment)
+    return re.sub(r'\s+', ' ', html.unescape(text)).strip()
+
+
+def _class_text(fragment, class_names):
+    class_pattern = '|'.join(re.escape(name) for name in class_names)
+    match = re.search(
+        rf'<(?:div|span|p)\b[^>]*class=["\'][^"\']*\b(?:{class_pattern})\b[^"\']*["\'][^>]*>(.*?)</(?:div|span|p)>',
+        fragment,
+        flags=re.I | re.S,
+    )
+    return _clean_html_fragment(match.group(1)) if match else ""
+
+
+def _class_anchor(fragment, class_names):
+    class_pattern = '|'.join(re.escape(name) for name in class_names)
+    match = re.search(
+        rf'<(?:h3|div|span)\b[^>]*class=["\'][^"\']*\b(?:{class_pattern})\b[^"\']*["\'][^>]*>.*?<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+        fragment,
+        flags=re.I | re.S,
+    )
+    if not match:
+        return "", ""
+    return html.unescape(match.group(1).strip()), _clean_html_fragment(match.group(2))
+
+
+def _scholar_absolute_url(value):
+    value = html.unescape((value or '').strip())
+    if value.startswith('//'):
+        return 'https:' + value
+    if value.startswith('/'):
+        return SCHOLAR_BASE_URL + value
+    return value
+
+
+def parse_scholar_author_results(content):
+    """Parse Google Scholar's author-search cards without logging in or bypassing a challenge."""
+    if not content:
+        return []
+
+    cards = list(re.finditer(
+        r'<div\b[^>]*class=["\'][^"\']*\bgsc_1usr\b[^"\']*["\'][^>]*>',
+        content,
+        flags=re.I,
+    ))
+    results = []
+    for index, card_match in enumerate(cards):
+        end = cards[index + 1].start() if index + 1 < len(cards) else len(content)
+        card = content[card_match.start():end]
+
+        profile_href, name = _class_anchor(card, ['gsc_1usr_name', 'gs_ai_name'])
+        if not profile_href:
+            profile_href = ''
+        profile_url = _scholar_absolute_url(profile_href)
+        user_match = re.search(r'[?&]user=([a-zA-Z0-9_-]+)', profile_url)
+        user_id = user_match.group(1) if user_match else ''
+        if not name or not user_id:
+            continue
+
+        affiliation = _class_text(card, ['gsc_1usr_aff', 'gs_ai_aff'])
+        email = _class_text(card, ['gsc_1usr_eml', 'gs_ai_eml'])
+        citation_text = _class_text(card, ['gsc_1usr_cby', 'gs_ai_cby'])
+        citation_match = re.search(r'cited\s+by\s*:?[\s]*([\d,]+)', citation_text or card, flags=re.I)
+        citations = int(re.sub(r'[^0-9]', '', citation_match.group(1))) if citation_match else None
+
+        photo_area = re.search(
+            r'<div\b[^>]*class=["\'][^"\']*\bgsc_1usr_photo\b[^"\']*["\'][^>]*>(.*?)</div>',
+            card,
+            flags=re.I | re.S,
+        )
+        image_area = photo_area.group(1) if photo_area else card
+        image_match = re.search(
+            r'<img\b[^>]*(?:src|data-src)=["\']([^"\']+)["\'][^>]*>',
+            image_area,
+            flags=re.I | re.S,
+        )
+        avatar = _scholar_absolute_url(image_match.group(1)) if image_match else ''
+
+        interests = []
+        interest_area = re.search(
+            r'<(?:div|span)\b[^>]*class=["\'][^"\']*\b(?:gsc_1usr_int|gs_ai_int)\b[^"\']*["\'][^>]*>(.*?)</(?:div|span)>',
+            card,
+            flags=re.I | re.S,
+        )
+        if interest_area:
+            interests = [
+                _clean_html_fragment(value)
+                for value in re.findall(r'<a\b[^>]*>(.*?)</a>', interest_area.group(1), flags=re.I | re.S)
+            ]
+            interests = [value for value in interests if value]
+
+        results.append({
+            'id': user_id,
+            'name': name,
+            'affiliation': affiliation,
+            'email': email,
+            'interests': interests,
+            'works_count': None,
+            'citations': citations,
+            'h_index': None,
+            'citation_label': 'cited by',
+            'avatar': avatar or None,
+            'scholarLink': profile_url or f'{SCHOLAR_BASE_URL}/citations?user={user_id}',
+            'source': 'scholar',
+        })
+
+    return results
+
+
+def search_scholar_authors(query):
+    """Fetch public Scholar author results; return a block flag for honest fallback messaging."""
+    search_url = (
+        f'{SCHOLAR_BASE_URL}/citations?view_op=search_authors'
+        f'&mauthors={urllib.parse.quote(query)}&hl=en&oi=ao'
+    )
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+    }
+    try:
+        request = urllib.request.Request(search_url, headers=headers)
+        with urllib.request.urlopen(request, timeout=8) as response:
+            final_url = response.geturl().lower()
+            content = response.read().decode('utf-8', errors='ignore')
+        lowered = content.lower()
+        blocked = (
+            'accounts.google.com' in final_url
+            or 'captcha' in lowered
+            or 'unusual traffic' in lowered
+            or 'not a robot' in lowered
+        )
+        if blocked:
+            return [], True
+        return parse_scholar_author_results(content), False
+    except Exception as error:
+        status = getattr(error, 'code', None)
+        blocked = status in (403, 429, 503)
+        print('[API] Google Scholar author search notice:', error)
+        return [], blocked
+
+
 class ScholarHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
@@ -465,6 +615,17 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+
+        if parsed.path == '/api/health':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'ok': True,
+                'service': 'ScholarPulse',
+                'google_scholar_author_search': 'best_effort'
+            }).encode('utf-8'))
+            return
         
         # Download docx via direct GET
         if parsed.path == '/api/download-docx':
@@ -538,6 +699,23 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             print(f"[API] Searching authors for: {q}")
+
+            # Google Scholar is the source shown in the product's author-search
+            # screenshot. Prefer its public author cards so names, ranking,
+            # citation counts, and profile photos match that source. Scholar
+            # may redirect automated requests to sign-in/challenge pages; in
+            # that case continue with the free OpenAlex fallback below.
+            scholar_results, scholar_blocked = search_scholar_authors(q)
+            if scholar_results:
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "results": scholar_results,
+                    "source": "google_scholar"
+                }, ensure_ascii=False).encode('utf-8'))
+                return
+
             results = []
             q_lower = q.lower()
             
@@ -704,7 +882,16 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.end_headers()
-            self.wfile.write(json.dumps({"results": results}, ensure_ascii=False).encode('utf-8'))
+            response = {
+                "results": results,
+                "source": "openalex_fallback" if scholar_blocked else "openalex"
+            }
+            if scholar_blocked:
+                response["notice"] = (
+                    "Google Scholar author search was unavailable from this server; "
+                    "showing free OpenAlex alternatives."
+                )
+            self.wfile.write(json.dumps(response, ensure_ascii=False).encode('utf-8'))
             return
 
         if parsed.path == '/api/author-works':
@@ -792,8 +979,11 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
 
 
 def main():
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), ScholarHandler) as httpd:
+    class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+        daemon_threads = True
+        allow_reuse_address = True
+
+    with ThreadingTCPServer(("", PORT), ScholarHandler) as httpd:
         url = f"http://localhost:{PORT}"
         print("=" * 60)
         print(f" ScholarPulse Local Server running at: {url}")

@@ -86,6 +86,20 @@ Open your browser at **`http://localhost:5000`**.
 3. The included `.github/workflows/pages.yml` publishes the site after each push. Within minutes, it will be accessible at:
    **`https://soheil-aghayani.github.io/ScholarPulse/`**
 
+## 📱 Free backend for live phone use
+
+GitHub Pages can host the interface for free, but it cannot run `server.py`. For Google Scholar author-search results and live profile scraping from a phone, deploy the same repository as a free Render web service:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Soheil-Aghayani/ScholarPulse)
+
+1. Open the button, sign in to Render, and keep the service on the **Free** plan.
+2. Wait for the first deployment to finish.
+3. Open the generated `*.onrender.com` address on the phone. That address serves both the website and the Python backend.
+
+You can confirm that the backend is awake by opening `https://YOUR-SERVICE.onrender.com/api/health` and checking for `"ok": true`.
+
+The app does not require an OpenAlex API key or a paid API key, and it never asks users for bank-card information. The free Render service can sleep after inactivity, so its first request may take a little time to wake up. Google Scholar can also challenge anonymous server requests; when that happens, ScholarPulse clearly labels the free OpenAlex fallback rather than pretending the lists are identical. See Render's [free instance documentation](https://render.com/docs/free) and [FAQ](https://render.com/docs/faq) for current account and plan conditions.
+
 ---
 
 ## 📁 Project Structure
@@ -94,6 +108,8 @@ Open your browser at **`http://localhost:5000`**.
 ScholarPulse/
 ├── index.html                  # Single-page web application (UI, charts, client search, exports)
 ├── server.py                   # Lightweight Python backend (Scholar scraper, DOCX bridge, fuzzy API)
+├── requirements.txt            # Python dependency used by the hosted/local backend
+├── render.yaml                 # Free Render deployment definition
 ├── start.bat                   # 1-click Windows launcher
 ├── manifest.json               # Progressive Web App (PWA) manifest
 ├── sw.js                       # Service Worker for offline capabilities

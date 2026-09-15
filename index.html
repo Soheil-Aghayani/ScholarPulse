@@ -2286,6 +2286,23 @@
       return window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
     }
 
+    function getConfiguredBackendBase() {
+      return String(window.SCHOLARPULSE_API_BASE || '').trim().replace(/\/+$/, '');
+    }
+
+    function getBackendUrl(path) {
+      const configuredBase = getConfiguredBackendBase();
+      if (configuredBase) return `${configuredBase}${path}`;
+      if (canUseLocalBridge()) return `http://localhost:5000${path}`;
+
+      // A Render deployment serves this page and the Python API from the same
+      // origin. GitHub Pages is intentionally kept serverless and uses the
+      // browser-only OpenAlex fallback unless a backend URL is configured.
+      const isGithubPages = window.location.hostname.toLowerCase().endsWith('.github.io');
+      if (window.location.protocol.startsWith('http') && !isGithubPages) return path;
+      return null;
+    }
+
     /* Fast Scraper: Tries local Python server first, then public proxies with strict 4s timeout */
     async function startLiveScraper(inputVal) {
       const userId = extractScholarUserId(inputVal);
@@ -2301,17 +2318,19 @@
 
       dom.scrapeStatus.style.display = 'flex';
       dom.statusTitle.innerText = `Connecting to Google Scholar (User: ${userId})...`;
+      const scraperBackendUrl = getBackendUrl(`/api/scrape?user=${encodeURIComponent(userId)}`);
       dom.statusDesc.innerText = canUseLocalBridge()
         ? "Checking local Python bridge (http://localhost:5000)..."
-        : "Testing the public Scholar gateway...";
+        : scraperBackendUrl
+          ? "Connecting to the hosted Scholar backend..."
+          : "Testing the public Scholar gateway...";
 
-      // 1. Check local server bridge (instant & 100% works)
-      if (canUseLocalBridge()) {
+      // 1. Check the local or hosted Python backend when available.
+      if (scraperBackendUrl) {
         try {
-          const localPromise = fetch(`http://localhost:5000/api/scrape?user=${encodeURIComponent(userId)}`, { signal: AbortSignal.timeout(12000) });
-          const localRes = await localPromise;
-          if (localRes.ok) {
-            const data = await localRes.json();
+          const backendRes = await fetch(scraperBackendUrl, { signal: AbortSignal.timeout(12000) });
+          if (backendRes.ok) {
+            const data = await backendRes.json();
             if (data.papers && data.papers.length > 0) {
               setDataset(data.author, data.papers);
               showToast(`Extracted ${data.papers.length} publications in seconds!`);
@@ -2321,12 +2340,12 @@
             }
           }
         } catch (err) {
-          // Local bridge not active, fall back to public proxies.
+          // Backend unavailable, fall back to public proxies.
         }
       }
 
       // 2. Check public proxies with STRICT 4s timeout
-      dom.statusDesc.innerText = "Local bridge not detected. Testing public gateway (timeout 4s)...";
+      dom.statusDesc.innerText = "Backend unavailable. Testing public gateway (timeout 4s)...";
       const targetUrl = `https://scholar.google.com/citations?user=${userId}&hl=en&cstart=0&pagesize=100`;
       
       let html = null;
@@ -3006,8 +3025,9 @@
           const styleName = state.activeStyle.toUpperCase();
           const docxFileName = `${authorSlug}_Publications_${styleName}.docx`;
 
-          // A. Try Python server bridge (generates native binary .docx via python-docx)
-          if (canUseLocalBridge()) {
+          // A. Try the local or hosted Python bridge (native binary .docx).
+          const exportBackendUrl = getBackendUrl('/api/export-docx');
+          if (exportBackendUrl) {
             try {
               const formattedList = state.filteredPapers.map((p, idx) => formatCitation(p, idx + 1, state.activeStyle));
               const payload = {
@@ -3016,7 +3036,7 @@
                 style: styleName,
                 citations: formattedList
               };
-              const res = await fetch('http://localhost:5000/api/export-docx', {
+              const res = await fetch(exportBackendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -3028,7 +3048,7 @@
                 return;
               }
             } catch (err) {
-              console.log("Local bridge not responding, falling back to Word document builder:", err);
+              console.log("Python backend not responding, falling back to Word document builder:", err);
             }
           }
 
@@ -3704,22 +3724,25 @@
         dom.authorSearchResults.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted);">
             <div class="spinner" style="margin: 0 auto 0.5rem auto;"></div>
-            Searching global academic registry for "<strong>${escapeHtml(query)}</strong>"...
+            Searching Google Scholar authors for "<strong>${escapeHtml(query)}</strong>"...
           </div>
         `;
 
-        // 1. Try the local backend only when the page is running locally.
+        // 1. Try the local or hosted backend when this deployment has one.
         let foundResults = null;
-        if (canUseLocalBridge()) {
+        let searchNotice = '';
+        const authorSearchBackendUrl = getBackendUrl(`/api/search-author?q=${encodeURIComponent(query)}`);
+        if (authorSearchBackendUrl) {
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2200);
-            const res = await fetch(`http://localhost:5000/api/search-author?q=${encodeURIComponent(query)}`, {
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
+            const res = await fetch(authorSearchBackendUrl, {
               signal: controller.signal
             });
             clearTimeout(timeoutId);
             if (res.ok) {
               const data = await res.json();
+              searchNotice = data.notice || '';
               if (data.results && data.results.length > 0) {
                 foundResults = data.results;
               }
@@ -3734,7 +3757,7 @@
           foundResults = await searchAuthorsClientSide(query);
         }
 
-        renderAuthorSearchResults(foundResults || [], query);
+        renderAuthorSearchResults(foundResults || [], query, searchNotice);
       };
 
       dom.btnSearchAuthor.addEventListener('click', () => triggerSearch());
@@ -3754,7 +3777,7 @@
       });
     }
 
-    function renderAuthorSearchResults(authors, query) {
+    function renderAuthorSearchResults(authors, query, notice = '') {
       if (!authors || authors.length === 0) {
         dom.authorSearchResults.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted);">
@@ -3764,9 +3787,18 @@
         return;
       }
 
-      let html = '';
+      let html = notice
+        ? `<div style="grid-column: 1 / -1; padding: 0.75rem 1rem; border: 1px solid rgba(251, 146, 60, 0.28); border-radius: 0.75rem; color: var(--text-muted); background: rgba(251, 146, 60, 0.08); font-size: 0.82rem;">${escapeHtml(notice)}</div>`
+        : '';
       authors.forEach(a => {
         const avatarHtml = buildAvatarImage(a);
+        const hasPaperCount = a.works_count !== null && a.works_count !== undefined;
+        const hasCitationCount = a.citations !== null && a.citations !== undefined;
+        const statsHtml = [
+          hasPaperCount ? `<span>📚 <strong>${Number(a.works_count || 0).toLocaleString()}</strong> papers</span>` : '',
+          hasCitationCount ? `<span>⭐ <strong>${Number(a.citations || 0).toLocaleString()}</strong> ${escapeHtml(a.citation_label || 'citations')}</span>` : '',
+          a.h_index ? `<span>h: <strong>${a.h_index}</strong></span>` : ''
+        ].filter(Boolean).join('');
 
         html += `
           <div class="author-result-card" data-id="${escapeHtml(a.id)}" data-name="${escapeHtml(a.name)}" data-source="${escapeHtml(a.source || 'scholar')}">
@@ -3777,9 +3809,7 @@
               <div class="author-result-name">${escapeHtml(a.name)}</div>
               <div class="author-result-affil" title="${escapeHtml(a.affiliation || '')}">${escapeHtml(a.affiliation || 'Academic Researcher')}</div>
               <div class="author-result-stats">
-                <span>📚 <strong>${(a.works_count || 0).toLocaleString()}</strong> papers</span>
-                <span>⭐ <strong>${(a.citations || 0).toLocaleString()}</strong> citations</span>
-                ${a.h_index ? `<span>h: <strong>${a.h_index}</strong></span>` : ''}
+                ${statsHtml}
               </div>
             </div>
             <button class="btn-subtle" style="color: var(--primary-light); font-weight: 600; flex-shrink: 0;">
@@ -3820,12 +3850,13 @@
             return;
           }
 
-          // 1. Try the local works API when it is available.
-          if (canUseLocalBridge()) {
+          // 1. Try the local or hosted works API when it is available.
+          const authorWorksBackendUrl = getBackendUrl(`/api/author-works?author_id=${encodeURIComponent(aid)}`);
+          if (authorWorksBackendUrl) {
             try {
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 2500);
-              const res = await fetch(`http://localhost:5000/api/author-works?author_id=${encodeURIComponent(aid)}`, {
+              const timeoutId = setTimeout(() => controller.abort(), canUseLocalBridge() ? 2500 : 10000);
+              const res = await fetch(authorWorksBackendUrl, {
                 signal: controller.signal
               });
               clearTimeout(timeoutId);
@@ -3839,12 +3870,12 @@
                 }
               }
             } catch (err) {
-              console.log("Local author-works bridge skipped, using browser direct loader:", err);
+              console.log("Python author-works backend skipped, using browser direct loader:", err);
             }
           }
 
           // 2. Pure Browser Serverless Loader (OpenAlex direct works & metadata)
-          if (aid.startsWith('A') || aid.length >= 8 || asource === 'openalex') {
+          if (aid.startsWith('A') || asource === 'openalex') {
             try {
               showToast(`Retrieving global works for ${aname}...`);
               const worksRes = await fetch(`https://api.openalex.org/works?filter=author.id:${aid}&per-page=100&sort=publication_year:desc`);
