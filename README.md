@@ -36,13 +36,19 @@ ScholarPulse is architected to work **100% serverless in the browser** on GitHub
 - **Microsoft Word (`.docx` / `.doc`)**: One-click download with professional typography (Calibri, hanging indent, styled headers). Works both via local Python engine and client-side browser builder.
 - **BibTeX (`.bib`)**: Formatted entries with clean citation keys, author names, venues, and years.
 - **CSV Spreadsheet (`.csv`)**: Full dataset with citations, DOI links, and publication years.
+- **JSON (`.json`)**: Portable profile, metrics, filters, and publication data for reuse or backup.
 - **Citation Styles**: Instant toggle between **APA 7th**, **IEEE**, **Harvard**, **MLA 9th**, and **Chicago**.
 
-### 5. 📊 Real-Time Bibliometrics & Analytics
+### 5. 💾 Saved Scholars & Comparison
+- Save up to 20 scholars locally on the device—no account or database required.
+- Compare up to three loaded scholars side by side using papers, citations, h-index, i10-index, and source details.
+- Share a profile link or export the active profile as JSON for a portable backup.
+
+### 6. 📊 Real-Time Bibliometrics & Analytics
 - Dynamic calculation of Total Papers, Total Citations, **h-index**, and **i10-index**.
 - Interactive publication trajectory charts by year and citation distribution breakdown.
 
-### 6. 📱 PWA & Offline Ready
+### 7. 📱 PWA & Offline Ready
 - Configured with `manifest.json` and service worker `sw.js`.
 - Responsive across desktop, tablet, and mobile devices with Dark / Light theme support.
 

@@ -99,6 +99,19 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    button, a, input, select, textarea {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     body {
       font-family: var(--font-sans);
       background-color: var(--bg-base);
@@ -622,6 +635,25 @@
       color: var(--text-subtle);
       font-size: 0.8rem;
       margin-top: 0.1rem;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .profile-action {
+      min-height: 44px;
+    }
+
+    .profile-action.is-saved,
+    .btn-compare-author.is-selected {
+      color: var(--primary-text);
+      border-color: var(--primary-light);
+      background: var(--primary-subtle);
     }
 
     .interests-list {
@@ -1268,6 +1300,15 @@
       margin-top: 3rem;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     @media print {
       header, .hero-card, .control-deck, .paper-actions, .nav-actions, footer, .scraper-alert {
         display: none !important;
@@ -1306,6 +1347,35 @@
       }
       .sort-group, .style-pills {
         width: 100%;
+      }
+      .profile-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .profile-actions .profile-action {
+        flex: 1;
+        justify-content: center;
+      }
+      .author-result-card {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      main .author-search-results {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .author-result-actions {
+        width: calc(100% - 3.35rem);
+        margin-left: 3.35rem;
+      }
+      .author-result-actions .btn-subtle {
+        flex: 1;
+        justify-content: center;
+      }
+      .saved-scholar-card {
+        align-items: flex-start;
+      }
+      .saved-scholar-actions {
+        flex-direction: column;
       }
     }
 
@@ -1414,6 +1484,234 @@
       gap: 0.6rem;
       font-size: 0.75rem;
       color: var(--text-subtle);
+    }
+
+    .author-search-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      padding: 0.7rem 0.85rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .author-search-toolbar strong {
+      color: var(--text-main);
+    }
+
+    .author-result-actions {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .author-result-actions .btn-subtle {
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .saved-count,
+    .compare-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.35rem;
+      height: 1.35rem;
+      padding: 0 0.35rem;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .saved-scholars-panel {
+      margin-top: 0.25rem;
+    }
+
+    .saved-scholars-intro {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .saved-scholars-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .saved-scholar-card {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.9rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+    }
+
+    .saved-scholar-avatar {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--primary-subtle);
+      border: 1px solid var(--border-medium);
+    }
+
+    .saved-scholar-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .saved-scholar-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .saved-scholar-name {
+      color: var(--text-main);
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .saved-scholar-affiliation,
+    .saved-scholar-meta {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .saved-scholar-meta {
+      color: var(--text-subtle);
+      margin-top: 0.15rem;
+    }
+
+    .saved-scholar-actions {
+      display: flex;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .saved-scholar-actions .btn-subtle {
+      min-height: 40px;
+      padding-left: 0.55rem;
+      padding-right: 0.55rem;
+    }
+
+    .compare-modal-card {
+      max-width: 900px;
+    }
+
+    .compare-modal-description {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin: -0.65rem 0 1rem;
+    }
+
+    .compare-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+
+    .compare-table {
+      width: 100%;
+      min-width: 580px;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 0.8rem 0.9rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    .compare-table tr:last-child th,
+    .compare-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .compare-table th {
+      width: 150px;
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .compare-scholar-head {
+      min-width: 150px;
+    }
+
+    .compare-avatar {
+      width: 42px;
+      height: 42px;
+      margin-bottom: 0.45rem;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--primary-subtle);
+    }
+
+    .compare-avatar img {
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+    }
+
+    .compare-scholar-head img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      margin-bottom: 0.45rem;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--primary-subtle);
+    }
+
+    .compare-scholar-name {
+      display: block;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .compare-scholar-source {
+      display: block;
+      color: var(--text-subtle);
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+
+    .compare-remove {
+      margin-top: 0.4rem;
+      padding: 0;
+      min-height: 32px;
+      color: var(--rose);
+    }
+
+    .compare-metric-value {
+      color: var(--text-main);
+      font-weight: 700;
     }
 
     /* Analytics Dashboard */
@@ -1541,6 +1839,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           Loaded Profiles
         </button>
+        <button class="tab-btn" data-tab="tab-saved">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          Saved Scholars <span class="saved-count" id="savedCountBadge">0</span>
+        </button>
       </div>
 
       <!-- Tab 0: Author Search -->
@@ -1558,6 +1860,16 @@
         <p class="search-hint">Typos and common transliteration variants are okay — try “Naser Mehrdadi” or search by institution and research field.</p>
 
         <!-- Live Author Search Results -->
+        <div class="author-search-toolbar" id="authorSearchToolbar" style="display: none;">
+          <span>Select up to <strong>3 scholars</strong> to compare their available metrics.</span>
+          <div style="display: flex; align-items: center; gap: 0.6rem;">
+            <span id="compareSelectionCount">0 selected</span>
+            <button class="btn-secondary" id="btnCompareSelected" type="button" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M8 12h8"/></svg>
+              Compare
+            </button>
+          </div>
+        </div>
         <div id="authorSearchResults" class="author-search-results" style="display: none;"></div>
       </div>
 
@@ -1627,6 +1939,14 @@
         </div>
       </div>
 
+      <!-- Tab 4: Saved Scholars (device-only, no account required) -->
+      <div class="tab-content" id="tab-saved">
+        <div class="saved-scholars-panel">
+          <p class="saved-scholars-intro">Your saved profiles stay on this device. No account, database, or paid service is required.</p>
+          <div class="saved-scholars-list" id="savedScholarsList"></div>
+        </div>
+      </div>
+
       <!-- Live Scraping Status Bar -->
       <div class="scrape-status" id="scrapeStatus">
         <div class="spinner"></div>
@@ -1670,8 +1990,20 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
-          <a id="authorScholarLink" href="#" target="_blank" class="btn-secondary" style="font-size: 0.825rem;">
+        <div class="profile-actions">
+          <button class="btn-secondary profile-action" id="btnSaveScholar" type="button" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Save Scholar
+          </button>
+          <button class="btn-secondary profile-action" id="btnCompareCurrent" type="button" aria-pressed="false">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M8 12h8"/></svg>
+            Compare
+          </button>
+          <button class="btn-secondary profile-action" id="btnCopyProfileLink" type="button" title="Copy the source profile link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share
+          </button>
+          <a id="authorScholarLink" href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary profile-action" style="font-size: 0.825rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             View on Scholar
           </a>
@@ -1747,6 +2079,10 @@
           <button class="btn-secondary" id="btnExportCsv" title="Export as CSV spreadsheet">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
             CSV
+          </button>
+          <button class="btn-secondary" id="btnExportJson" title="Export profile and publications as JSON">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M8 12h8"/></svg>
+            JSON
           </button>
           <button class="btn-secondary" id="btnPrint" title="Print-ready formatted list">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -1991,6 +2327,18 @@
     </div>
   </div>
 
+  <!-- Compare Scholars Modal -->
+  <div class="modal-backdrop" id="compareModal" aria-hidden="true">
+    <div class="modal-card compare-modal-card" role="dialog" aria-modal="true" aria-labelledby="compareModalTitle">
+      <div class="modal-header">
+        <h3 id="compareModalTitle">Compare Scholars</h3>
+        <button class="btn-icon" id="btnCloseCompare" type="button" aria-label="Close scholar comparison">&times;</button>
+      </div>
+      <p class="compare-modal-description">Compare the profile metrics currently available from the selected source.</p>
+      <div id="compareContent"></div>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div class="toast" id="toastMessage">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2026,7 +2374,10 @@
       filterYearMin: null,
       filterYearMax: null,
       isScraping: false,
-      abortController: null
+      abortController: null,
+      savedScholars: [],
+      compareScholars: [],
+      lastAuthorResults: []
     };
 
     /* Datasets */
@@ -2126,6 +2477,9 @@
       authorEmail: document.getElementById('authorEmail'),
       authorInterests: document.getElementById('authorInterests'),
       authorScholarLink: document.getElementById('authorScholarLink'),
+      btnSaveScholar: document.getElementById('btnSaveScholar'),
+      btnCompareCurrent: document.getElementById('btnCompareCurrent'),
+      btnCopyProfileLink: document.getElementById('btnCopyProfileLink'),
       
       metricTotalPapers: document.getElementById('metricTotalPapers'),
       metricTotalCitations: document.getElementById('metricTotalCitations'),
@@ -2181,6 +2535,7 @@
       btnExportDocx: document.getElementById('btnExportDocx'),
       btnExportBibtex: document.getElementById('btnExportBibtex'),
       btnExportCsv: document.getElementById('btnExportCsv'),
+      btnExportJson: document.getElementById('btnExportJson'),
       btnPrint: document.getElementById('btnPrint'),
       
       toast: document.getElementById('toastMessage'),
@@ -2190,7 +2545,15 @@
       themeIconLight: document.getElementById('themeIconLight'),
       btnHelp: document.getElementById('btnHelp'),
       helpModal: document.getElementById('helpModal'),
-      btnCloseHelp: document.getElementById('btnCloseHelp')
+      btnCloseHelp: document.getElementById('btnCloseHelp'),
+      authorSearchToolbar: document.getElementById('authorSearchToolbar'),
+      compareSelectionCount: document.getElementById('compareSelectionCount'),
+      btnCompareSelected: document.getElementById('btnCompareSelected'),
+      savedCountBadge: document.getElementById('savedCountBadge'),
+      savedScholarsList: document.getElementById('savedScholarsList'),
+      compareModal: document.getElementById('compareModal'),
+      compareContent: document.getElementById('compareContent'),
+      btnCloseCompare: document.getElementById('btnCloseCompare')
     };
 
     /* HTML Parser for Drag & Drop / Pasted source */
@@ -2600,6 +2963,7 @@
       dom.authorScholarLink.href = author.scholarLink || "#";
 
       dom.authorAvatar.innerHTML = buildAvatarImage(author);
+      updateProfileActionButtons();
 
       dom.authorInterests.innerHTML = '';
       if (author.interests && author.interests.length > 0) {
@@ -2761,6 +3125,402 @@
         .replace(/'/g, '&#039;');
     }
 
+    const SAVED_SCHOLARS_STORAGE_KEY = 'scholarpulse:saved-scholars:v1';
+    const MAX_SAVED_SCHOLARS = 20;
+
+    function numberOrNull(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function extractScholarUserId(profileUrl) {
+      if (!profileUrl) return '';
+      try {
+        return new URL(profileUrl, window.location.href).searchParams.get('user') || '';
+      } catch (error) {
+        return '';
+      }
+    }
+
+    function getAuthorKey(author) {
+      const directId = author?.id || author?.author_id || author?.authorId;
+      if (directId) return String(directId);
+
+      const scholarId = extractScholarUserId(author?.scholarLink || author?.link);
+      if (scholarId) return scholarId;
+
+      const normalizedName = normalizeSearchText(author?.name || '');
+      return normalizedName ? `name:${normalizedName}` : '';
+    }
+
+    function getSavedRecordKey(record) {
+      return record?.key || getAuthorKey(record?.author || record);
+    }
+
+    function clonePaperForStorage(paper) {
+      return {
+        id: paper?.id || '',
+        title: paper?.title || '',
+        authors: paper?.authors || '',
+        venue: paper?.venue || '',
+        year: paper?.year ?? null,
+        citations: numberOrNull(paper?.citations) ?? 0,
+        link: paper?.link || '',
+        doi: paper?.doi || ''
+      };
+    }
+
+    function loadSavedScholars() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARS_STORAGE_KEY) || '[]');
+        if (!Array.isArray(saved)) return [];
+        return saved
+          .filter(record => record && record.author && record.author.name)
+          .slice(0, MAX_SAVED_SCHOLARS);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function persistSavedScholars() {
+      try {
+        localStorage.setItem(SAVED_SCHOLARS_STORAGE_KEY, JSON.stringify(state.savedScholars));
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function computeHIndex(papers) {
+      const citations = (papers || [])
+        .map(paper => numberOrNull(paper?.citations) ?? 0)
+        .sort((a, b) => b - a);
+      let hIndex = 0;
+      citations.forEach((citationCount, index) => {
+        if (citationCount >= index + 1) hIndex = index + 1;
+      });
+      return citations.length > 0 ? hIndex : null;
+    }
+
+    function getProfileMetrics(author, papers = []) {
+      const paperCount = numberOrNull(author?.works_count) ?? (papers.length ? papers.length : null);
+      const paperCitations = papers.reduce((sum, paper) => sum + (numberOrNull(paper?.citations) ?? 0), 0);
+      const citations = numberOrNull(author?.citations ?? author?.cited_by_count)
+        ?? (papers.length ? paperCitations : null);
+      const hIndex = numberOrNull(author?.h_index ?? author?.hIndex) ?? computeHIndex(papers);
+      const i10Index = numberOrNull(author?.i10_index ?? author?.i10Index)
+        ?? (papers.length ? papers.filter(paper => (numberOrNull(paper?.citations) ?? 0) >= 10).length : null);
+
+      return {
+        works_count: paperCount,
+        citations,
+        h_index: hIndex,
+        i10_index: i10Index
+      };
+    }
+
+    function getSourceLabel(source) {
+      const normalizedSource = String(source || '').toLowerCase();
+      if (normalizedSource.includes('openalex')) return 'OpenAlex';
+      if (normalizedSource.includes('scholar')) return 'Google Scholar';
+      return 'Imported profile';
+    }
+
+    function buildCompareScholar(author, papers = []) {
+      const metrics = getProfileMetrics(author, papers);
+      return {
+        key: getAuthorKey(author),
+        id: author?.id || '',
+        name: author?.name || 'Scholar Author',
+        affiliation: author?.affiliation || '',
+        email: author?.email || '',
+        interests: Array.isArray(author?.interests) ? author.interests : [],
+        scholarLink: author?.scholarLink || author?.link || '',
+        avatar: getAvatarUrl(author),
+        source: author?.source || 'profile',
+        sourceLabel: getSourceLabel(author?.source),
+        ...metrics
+      };
+    }
+
+    function isScholarSaved(author) {
+      const key = getAuthorKey(author);
+      return Boolean(key && state.savedScholars.some(record => getSavedRecordKey(record) === key));
+    }
+
+    function updateSavedCount() {
+      if (dom.savedCountBadge) dom.savedCountBadge.innerText = state.savedScholars.length.toLocaleString();
+    }
+
+    function updateSaveButton() {
+      if (!dom.btnSaveScholar) return;
+      const saved = Boolean(state.author && isScholarSaved(state.author));
+      dom.btnSaveScholar.classList.toggle('is-saved', saved);
+      dom.btnSaveScholar.setAttribute('aria-pressed', String(saved));
+      dom.btnSaveScholar.innerHTML = saved
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Saved'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Save Scholar';
+    }
+
+    function isScholarCompared(author) {
+      const key = getAuthorKey(author);
+      return Boolean(key && state.compareScholars.some(scholar => scholar.key === key));
+    }
+
+    function updateProfileActionButtons() {
+      updateSaveButton();
+      if (!dom.btnCompareCurrent) return;
+      const compared = Boolean(state.author && isScholarCompared(state.author));
+      dom.btnCompareCurrent.classList.toggle('is-saved', compared);
+      dom.btnCompareCurrent.setAttribute('aria-pressed', String(compared));
+      dom.btnCompareCurrent.innerHTML = compared
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Compared'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 1 2-2v-3"/><path d="M8 12h8"/></svg> Compare';
+    }
+
+    function saveCurrentScholar() {
+      if (!state.author) return;
+      const key = getAuthorKey(state.author);
+      if (!key) {
+        showToast('This profile does not have enough identity information to save.');
+        return;
+      }
+
+      const existingIndex = state.savedScholars.findIndex(record => getSavedRecordKey(record) === key);
+      const previous = state.savedScholars;
+      if (existingIndex !== -1) {
+        state.savedScholars = state.savedScholars.filter((_, index) => index !== existingIndex);
+        if (!persistSavedScholars()) {
+          state.savedScholars = previous;
+          showToast('Could not update saved scholars on this device.');
+          return;
+        }
+        showToast(`${state.author.name || 'Scholar'} removed from saved scholars.`);
+      } else {
+        const record = {
+          key,
+          author: { ...state.author },
+          papers: (state.rawPapers || []).slice(0, 500).map(clonePaperForStorage),
+          savedAt: Date.now()
+        };
+        state.savedScholars = [record, ...state.savedScholars].slice(0, MAX_SAVED_SCHOLARS);
+        if (!persistSavedScholars()) {
+          state.savedScholars = previous;
+          showToast('Could not save this profile. Browser storage may be full.');
+          return;
+        }
+        showToast(`${state.author.name || 'Scholar'} saved on this device.`);
+      }
+
+      renderSavedScholars();
+      updateProfileActionButtons();
+    }
+
+    function renderSavedScholars() {
+      updateSavedCount();
+      if (!dom.savedScholarsList) return;
+
+      if (state.savedScholars.length === 0) {
+        dom.savedScholarsList.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <h3>No saved scholars yet</h3>
+            <p>Load a profile and choose “Save Scholar” to keep it available on this device.</p>
+          </div>
+        `;
+        return;
+      }
+
+      dom.savedScholarsList.innerHTML = state.savedScholars.map(record => {
+        const author = record.author || {};
+        const papers = Array.isArray(record.papers) ? record.papers : [];
+        const metrics = getProfileMetrics(author, papers);
+        const meta = [
+          metrics.works_count === null ? '' : `${metrics.works_count.toLocaleString()} papers`,
+          metrics.citations === null ? '' : `${metrics.citations.toLocaleString()} citations`
+        ].filter(Boolean).join(' · ') || 'Profile details saved';
+        const savedDate = record.savedAt
+          ? new Date(record.savedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+          : 'Saved locally';
+        const key = getSavedRecordKey(record);
+
+        return `
+          <article class="saved-scholar-card" data-key="${escapeHtml(key)}">
+            <div class="saved-scholar-avatar">${buildAvatarImage(author)}</div>
+            <div class="saved-scholar-info">
+              <div class="saved-scholar-name" title="${escapeHtml(author.name)}">${escapeHtml(author.name)}</div>
+              <div class="saved-scholar-affiliation" title="${escapeHtml(author.affiliation || '')}">${escapeHtml(author.affiliation || 'Academic Researcher')}</div>
+              <div class="saved-scholar-meta">${escapeHtml(meta)} · ${escapeHtml(savedDate)}</div>
+            </div>
+            <div class="saved-scholar-actions">
+              <button class="btn-subtle btn-load-saved" type="button" data-key="${escapeHtml(key)}">Load</button>
+              <button class="btn-subtle btn-remove-saved" type="button" data-key="${escapeHtml(key)}" aria-label="Remove ${escapeHtml(author.name)} from saved scholars">Remove</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      dom.savedScholarsList.querySelectorAll('.btn-load-saved').forEach(button => {
+        button.addEventListener('click', () => {
+          const key = button.getAttribute('data-key');
+          const record = state.savedScholars.find(item => getSavedRecordKey(item) === key);
+          if (!record) return;
+          setDataset(record.author, Array.isArray(record.papers) ? record.papers : []);
+          showToast(`Loaded ${record.author.name}.`);
+          dom.authorCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      dom.savedScholarsList.querySelectorAll('.btn-remove-saved').forEach(button => {
+        button.addEventListener('click', () => {
+          const key = button.getAttribute('data-key');
+          const record = state.savedScholars.find(item => getSavedRecordKey(item) === key);
+          const previous = state.savedScholars;
+          state.savedScholars = state.savedScholars.filter(item => getSavedRecordKey(item) !== key);
+          if (!persistSavedScholars()) {
+            state.savedScholars = previous;
+            showToast('Could not update saved scholars on this device.');
+            return;
+          }
+          renderSavedScholars();
+          updateProfileActionButtons();
+          if (record) showToast(`${record.author.name} removed from saved scholars.`);
+        });
+      });
+    }
+
+    function updateCompareSelectionUI() {
+      const selectedCount = state.compareScholars.length;
+      if (dom.authorSearchToolbar) {
+        dom.authorSearchToolbar.style.display = state.lastAuthorResults.length ? 'flex' : 'none';
+      }
+      if (dom.compareSelectionCount) {
+        dom.compareSelectionCount.innerText = selectedCount === 1
+          ? '1 selected — choose one more'
+          : `${selectedCount} selected`;
+      }
+      if (dom.btnCompareSelected) dom.btnCompareSelected.disabled = selectedCount < 2;
+
+      document.querySelectorAll('.btn-compare-author').forEach(button => {
+        const candidate = state.lastAuthorResults.find(author => String(author.id) === button.getAttribute('data-id'));
+        const selected = Boolean(candidate && isScholarCompared(candidate));
+        button.classList.toggle('is-selected', selected);
+        button.setAttribute('aria-pressed', String(selected));
+        button.innerHTML = selected
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Added'
+          : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Compare';
+      });
+
+      updateProfileActionButtons();
+    }
+
+    function toggleCompareScholar(scholar) {
+      const key = scholar?.key || getAuthorKey(scholar);
+      if (!key) {
+        showToast('This profile does not have enough identity information to compare.');
+        return;
+      }
+
+      const existingIndex = state.compareScholars.findIndex(item => item.key === key);
+      if (existingIndex !== -1) {
+        state.compareScholars = state.compareScholars.filter((_, index) => index !== existingIndex);
+      } else if (state.compareScholars.length >= 3) {
+        showToast('Compare up to 3 scholars at a time.');
+        return;
+      } else {
+        state.compareScholars.push({ ...scholar, key });
+      }
+
+      updateCompareSelectionUI();
+    }
+
+    function toggleCompareFromSearch(authorId) {
+      const author = state.lastAuthorResults.find(item => String(item.id) === String(authorId));
+      if (author) toggleCompareScholar(buildCompareScholar(author));
+    }
+
+    function toggleCompareCurrent() {
+      if (!state.author) return;
+      if (isScholarCompared(state.author) && state.compareScholars.length >= 2) {
+        openCompareModal();
+        return;
+      }
+      toggleCompareScholar(buildCompareScholar(state.author, state.rawPapers));
+    }
+
+    function formatCompareMetric(value, type = 'number') {
+      if (value === null || value === undefined || value === '') {
+        return '<span style="color: var(--text-subtle);">Not available</span>';
+      }
+      if (type === 'number') return `<span class="compare-metric-value">${Number(value).toLocaleString()}</span>`;
+      return `<span class="compare-metric-value">${escapeHtml(value)}</span>`;
+    }
+
+    function renderCompareModal() {
+      if (!dom.compareContent) return;
+      const scholars = state.compareScholars;
+      if (scholars.length < 2) {
+        dom.compareContent.innerHTML = '<div class="empty-state" style="padding: 2rem 1rem;"><h3>Select at least two scholars</h3><p>Use Compare on search results or on a loaded profile.</p></div>';
+        return;
+      }
+
+      const headHtml = scholars.map(scholar => `
+        <th scope="col" class="compare-scholar-head">
+          <div class="compare-avatar">${buildAvatarImage(scholar)}</div>
+          <span class="compare-scholar-name">${escapeHtml(scholar.name)}</span>
+          <span class="compare-scholar-source">${escapeHtml(scholar.sourceLabel || getSourceLabel(scholar.source))}</span>
+          <button class="btn-subtle compare-remove btn-remove-compare" type="button" data-key="${escapeHtml(scholar.key)}" aria-label="Remove ${escapeHtml(scholar.name)} from comparison">Remove</button>
+        </th>
+      `).join('');
+      const rows = [
+        ['Affiliation', 'affiliation', 'text'],
+        ['Papers', 'works_count', 'number'],
+        ['Citations', 'citations', 'number'],
+        ['h-index', 'h_index', 'number'],
+        ['i10-index', 'i10_index', 'number']
+      ].map(([label, property, type]) => `
+        <tr>
+          <th scope="row">${label}</th>
+          ${scholars.map(scholar => `<td>${formatCompareMetric(scholar[property], type)}</td>`).join('')}
+        </tr>
+      `).join('');
+
+      dom.compareContent.innerHTML = `
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th scope="col">Profile metric</th>${headHtml}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+
+      dom.compareContent.querySelectorAll('.btn-remove-compare').forEach(button => {
+        button.addEventListener('click', () => {
+          const key = button.getAttribute('data-key');
+          state.compareScholars = state.compareScholars.filter(scholar => scholar.key !== key);
+          renderCompareModal();
+          updateCompareSelectionUI();
+        });
+      });
+    }
+
+    function openCompareModal() {
+      if (state.compareScholars.length < 2) {
+        showToast('Select at least two scholars to compare.');
+        return;
+      }
+      renderCompareModal();
+      dom.compareModal.classList.add('show');
+      dom.compareModal.setAttribute('aria-hidden', 'false');
+      window.setTimeout(() => dom.btnCloseCompare?.focus(), 0);
+    }
+
+    function closeCompareModal() {
+      dom.compareModal.classList.remove('show');
+      dom.compareModal.setAttribute('aria-hidden', 'true');
+    }
+
     function downloadBlob(blob, fileName) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2800,6 +3560,23 @@
           const targetId = btn.getAttribute('data-tab');
           document.getElementById(targetId).classList.add('active');
         });
+      });
+
+      dom.btnSaveScholar.addEventListener('click', saveCurrentScholar);
+      dom.btnCompareCurrent.addEventListener('click', toggleCompareCurrent);
+      dom.btnCopyProfileLink.addEventListener('click', () => {
+        const profileLink = state.author?.scholarLink || state.author?.link;
+        if (!profileLink || profileLink === '#') {
+          showToast('This profile does not have a source link to share.');
+          return;
+        }
+        copyToClipboard(profileLink);
+        showToast('Profile link copied to clipboard!');
+      });
+      dom.btnCompareSelected.addEventListener('click', openCompareModal);
+      dom.btnCloseCompare.addEventListener('click', closeCompareModal);
+      dom.compareModal.addEventListener('click', (event) => {
+        if (event.target === dom.compareModal) closeCompareModal();
       });
 
       document.querySelectorAll('.chip').forEach(chip => {
@@ -3141,6 +3918,33 @@
         showToast("CSV (.csv) spreadsheet downloaded successfully!");
       });
 
+      // 5. Export the current profile and filtered publication set as JSON.
+      dom.btnExportJson.addEventListener('click', () => {
+        if (!state.author || !state.filteredPapers || state.filteredPapers.length === 0) {
+          showToast("No profile data to export.");
+          return;
+        }
+
+        const exportPayload = {
+          exported_at: new Date().toISOString(),
+          source: state.author.source || 'profile',
+          citation_style: state.activeStyle,
+          author: state.author,
+          metrics: getProfileMetrics(state.author, state.rawPapers),
+          filters: {
+            keyword: state.filterKeyword,
+            minimum_citations: Number(state.filterMinCitations) || 0,
+            year_range: state.filterYearRange,
+            minimum_year: state.filterYearMin,
+            maximum_year: state.filterYearMax
+          },
+          papers: state.filteredPapers
+        };
+        const authorSlug = (state.author.name || 'Scholar').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+        downloadFile(JSON.stringify(exportPayload, null, 2), `${authorSlug || 'Scholar'}_ScholarPulse.json`, 'application/json;charset=utf-8');
+        showToast("JSON profile export downloaded successfully!");
+      });
+
       dom.btnPrint.addEventListener('click', () => window.print());
 
       dom.btnTheme.addEventListener('click', () => {
@@ -3165,6 +3969,11 @@
       dom.btnCloseHelp.addEventListener('click', () => dom.helpModal.classList.remove('show'));
       dom.helpModal.addEventListener('click', (e) => {
         if (e.target === dom.helpModal) dom.helpModal.classList.remove('show');
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        if (dom.helpModal.classList.contains('show')) dom.helpModal.classList.remove('show');
+        if (dom.compareModal.classList.contains('show')) closeCompareModal();
       });
 
       initAuthorSearch();
@@ -3779,6 +4588,8 @@
 
     function renderAuthorSearchResults(authors, query, notice = '') {
       if (!authors || authors.length === 0) {
+        state.lastAuthorResults = [];
+        updateCompareSelectionUI();
         dom.authorSearchResults.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 1.5rem; color: var(--text-muted);">
             No matching scholar profiles found for "<strong>${escapeHtml(query)}</strong>". Try another spelling, university, or name.
@@ -3787,6 +4598,7 @@
         return;
       }
 
+      state.lastAuthorResults = authors;
       let html = notice
         ? `<div style="grid-column: 1 / -1; padding: 0.75rem 1rem; border: 1px solid rgba(251, 146, 60, 0.28); border-radius: 0.75rem; color: var(--text-muted); background: rgba(251, 146, 60, 0.08); font-size: 0.82rem;">${escapeHtml(notice)}</div>`
         : '';
@@ -3800,6 +4612,7 @@
           a.h_index ? `<span>h: <strong>${a.h_index}</strong></span>` : ''
         ].filter(Boolean).join('');
 
+        const compared = isScholarCompared(a);
         html += `
           <div class="author-result-card" data-id="${escapeHtml(a.id)}" data-name="${escapeHtml(a.name)}" data-source="${escapeHtml(a.source || 'scholar')}">
             <div class="author-result-avatar">
@@ -3812,14 +4625,27 @@
                 ${statsHtml}
               </div>
             </div>
-            <button class="btn-subtle" style="color: var(--primary-light); font-weight: 600; flex-shrink: 0;">
-              Select →
-            </button>
+            <div class="author-result-actions">
+              <button class="btn-subtle btn-compare-author${compared ? ' is-selected' : ''}" type="button" data-id="${escapeHtml(a.id)}" aria-pressed="${compared}" aria-label="${compared ? 'Remove' : 'Add'} ${escapeHtml(a.name)} ${compared ? 'from' : 'to'} comparison">
+                ${compared
+                  ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Added'
+                  : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Compare'}
+              </button>
+              <button class="btn-subtle btn-load-author" type="button" aria-label="Load ${escapeHtml(a.name)}">Select →</button>
+            </div>
           </div>
         `;
       });
 
       dom.authorSearchResults.innerHTML = html;
+      updateCompareSelectionUI();
+
+      dom.authorSearchResults.querySelectorAll('.btn-compare-author').forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          toggleCompareFromSearch(button.getAttribute('data-id'));
+        });
+      });
 
       dom.authorSearchResults.querySelectorAll('.author-result-card').forEach(card => {
         card.addEventListener('click', async () => {
@@ -3898,13 +4724,15 @@
                 });
 
                   const authorObj = {
+                    id: aid,
                     name: aname,
                     affiliation: card.querySelector('.author-result-affil')?.innerText || '',
                     email: '',
                     avatar: card.querySelector('img')?.currentSrc || card.querySelector('img')?.src || getFallbackAvatarUrl(aname),
                     interests: [],
-                  scholarLink: `https://openalex.org/authors/${aid}`
-                };
+                    scholarLink: `https://openalex.org/authors/${aid}`,
+                    source: 'openalex'
+                  };
 
                 setDataset(authorObj, papers);
                 showToast(`Loaded ${papers.length} publications for ${aname}!`);
@@ -3928,6 +4756,9 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initEventHandlers();
+      state.savedScholars = loadSavedScholars();
+      renderSavedScholars();
+      updateCompareSelectionUI();
       updateSortButtonUI();
       // Load Nasser Mehrdadi's complete 353 publications by default!
       setDataset(DEMO_MEHRDADI.author, DEMO_MEHRDADI.papers);
