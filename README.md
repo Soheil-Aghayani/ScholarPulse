@@ -1,7 +1,7 @@
 # 🎓 ScholarPulse — Academic Publication Suite & Citation Formatter
 
 [![Live Website](https://img.shields.io/badge/Live%20Website-GitHub%20Pages-2563eb?style=for-the-badge&logo=github)](https://soheil-aghayani.github.io/ScholarPulse/)
-[![PWA Ready](https://img.shields.io/badge/PWA-Ready-10b981?style=for-the-badge&logo=pwa)](https://soheil-aghayani.github.io/ScholarPulse/)
+[![PWA Foundation](https://img.shields.io/badge/PWA-Foundation-10b981?style=for-the-badge&logo=pwa)](https://soheil-aghayani.github.io/ScholarPulse/)
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](LICENSE)
 
@@ -82,11 +82,8 @@ Open your browser at **`http://localhost:5000`**.
    git branch -M main
    git push -u origin main
    ```
-2. In your GitHub repository:
-   - Go to **Settings** > **Pages**.
-   - Under **Build and deployment** > **Branch**, select `main` (or `master`) and `/ (root)`.
-   - Click **Save**.
-3. Within minutes, your live site will be accessible at:
+2. In your GitHub repository, go to **Settings** > **Pages** and set **Source** to **GitHub Actions**.
+3. The included `.github/workflows/pages.yml` publishes the site after each push. Within minutes, it will be accessible at:
    **`https://soheil-aghayani.github.io/ScholarPulse/`**
 
 ---

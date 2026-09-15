@@ -8,6 +8,7 @@ import json
 import time
 import os
 import io
+import unicodedata
 
 try:
     import docx
@@ -67,12 +68,17 @@ def scrape_scholar(user_id):
             affil_m = re.search(r'class="gsc_prf_il"[^>]*>([^<]+)<', content)
             email_m = re.search(r'id="gsc_prf_ivh"[^>]*>([^<]+)<', content)
             interests = re.findall(r'class="gsc_prf_inta"[^>]*>([^<]+)<', content)
+            avatar_m = re.search(r'<img[^>]+id="gsc_prf_pup-img"[^>]+src="([^"]+)"', content, re.I)
+            avatar_url = html.unescape(avatar_m.group(1).strip()) if avatar_m else ""
+            if avatar_url.startswith('/'):
+                avatar_url = "https://scholar.google.com" + avatar_url
             
             author_info = {
                 "name": html.unescape(name_m.group(1).strip()) if name_m else "Scholar Author",
                 "affiliation": html.unescape(affil_m.group(1).strip()) if affil_m else "",
                 "email": html.unescape(email_m.group(1).strip()) if email_m else "",
                 "interests": [html.unescape(i.strip()) for i in interests],
+                "avatar": avatar_url or None,
                 "scholarLink": f"https://scholar.google.com/citations?user={user_id}"
             }
 
@@ -98,6 +104,8 @@ def scrape_scholar(user_id):
                     link = "https://scholar.google.com" + link
             
             gray_divs = re.findall(r'<div class="gs_gray">(.*?)</div>', r, re.DOTALL)
+            raw_authors = html.unescape(re.sub(r'<[^>]+>', '', gray_divs[0]).strip()) if gray_divs else ""
+            authors = clean_authors(raw_authors)
             raw_venue = html.unescape(re.sub(r'<[^>]+>', '', gray_divs[1]).strip()) if len(gray_divs) > 1 else ""
             venue = clean_venue(raw_venue)
             
@@ -251,43 +259,107 @@ def levenshtein_dist(s1, s2):
     return previous_row[-1]
 
 
+def normalize_search_text(value):
+    text = unicodedata.normalize('NFKD', str(value or ''))
+    text = ''.join(char for char in text if not unicodedata.combining(char))
+    text = text.lower()
+    return re.sub(r'[\W_]+', ' ', text, flags=re.UNICODE).strip()
+
+
+def search_tokens(value):
+    return [token for token in normalize_search_text(value).split() if len(token) > 1]
+
+
+def token_similarity(query_token, target_token):
+    if not query_token or not target_token:
+        return 0.0
+    if query_token == target_token:
+        return 1.0
+    if query_token in target_token or target_token in query_token:
+        return 0.86 + (min(len(query_token), len(target_token)) / max(len(query_token), len(target_token))) * 0.08
+    distance = levenshtein_dist(query_token, target_token)
+    max_distance = 1 if len(query_token) <= 4 else 2 if len(query_token) <= 7 else 3
+    if distance > max_distance:
+        return 0.0
+    return max(0.0, 1 - (distance / max(len(query_token), len(target_token))))
+
+
+def best_token_similarity(query_token, target_tokens):
+    return max((token_similarity(query_token, target) for target in target_tokens), default=0.0)
+
+
+def author_match_score(query, name, affiliation=''):
+    normalized_query = normalize_search_text(query)
+    normalized_name = normalize_search_text(name)
+    normalized_affiliation = normalize_search_text(affiliation)
+    if not normalized_query or not normalized_name:
+        return 0.0
+    if normalized_name == normalized_query:
+        return 1.0
+    if normalized_query in normalized_name:
+        return 0.98
+    if normalized_query in normalized_affiliation:
+        return 0.82
+
+    query_tokens = search_tokens(query)
+    name_tokens = search_tokens(name)
+    affiliation_tokens = search_tokens(affiliation)
+    if not query_tokens:
+        return 0.0
+
+    name_scores = [best_token_similarity(token, name_tokens) for token in query_tokens]
+    affiliation_scores = [best_token_similarity(token, affiliation_tokens) for token in query_tokens]
+    combined_scores = [max(name_score, affiliation_score * 0.88) for name_score, affiliation_score in zip(name_scores, affiliation_scores)]
+    minimum_score = 0.58 if len(query_tokens) == 1 else 0.52
+    if any(score < minimum_score for score in combined_scores):
+        return 0.0
+
+    average_score = sum(combined_scores) / len(combined_scores)
+    name_coverage = sum(name_scores) / len(name_scores)
+    return min(0.96, (average_score * 0.68) + (name_coverage * 0.32))
+
+
 def fuzzy_match_author(query, target):
-    if not query or not target:
-        return False
-    q_lower = query.lower().strip()
-    t_lower = target.lower().strip()
-    if q_lower in t_lower or t_lower in q_lower:
-        return True
-    
-    q_words = [w for w in re.split(r'[\s\.\,\-_]+', q_lower) if len(w) > 1]
-    t_words = [w for w in re.split(r'[\s\.\,\-_]+', t_lower) if len(w) > 1]
-    if not q_words:
-        return False
-    
-    matched = 0
-    for qw in q_words:
-        found = False
-        for tw in t_words:
-            if qw in tw or tw in qw:
-                found = True
-                break
-            max_dist = 1 if len(qw) <= 5 else 2
-            if levenshtein_dist(qw, tw) <= max_dist:
-                found = True
-                break
-        if found:
-            matched += 1
-            
-    return matched == len(q_words)
+    return author_match_score(query, target) >= 0.58
+
+
+SEARCH_SPELLING_VARIANTS = {
+    'nasser': ['naser'],
+    'naser': ['nasser'],
+    'hossein': ['hosein', 'hussein'],
+    'hosein': ['hossein', 'hussein'],
+    'hussein': ['hossein', 'hosein'],
+    'hassan': ['hasan'],
+    'hasan': ['hassan'],
+    'mohammed': ['mohammad', 'mohamed', 'mohamad'],
+    'mohammad': ['mohammed', 'mohamed', 'mohamad'],
+    'mohamed': ['mohammad', 'mohammed', 'mohamad'],
+    'mohamad': ['mohammad', 'mohammed', 'mohamed'],
+    'mehdi': ['mahdi'],
+    'mahdi': ['mehdi'],
+    'rodabeh': ['roudabeh'],
+    'roudabeh': ['rodabeh'],
+    'samiee': ['samie', 'samii'],
+    'samie': ['samiee', 'samii'],
+}
 
 
 def get_search_variants(q):
     variants = [q.strip()]
     words = q.strip().split()
+    priority_variants = []
+    for index, word in enumerate(words):
+        for candidate in SEARCH_SPELLING_VARIANTS.get(word.lower(), []):
+            variant_words = list(words)
+            variant_words[index] = candidate
+            priority_variants.append(' '.join(variant_words))
     
     for i, w in enumerate(words):
         w_low = w.lower()
         word_cands = set()
+
+        for candidate in SEARCH_SPELLING_VARIANTS.get(w_low, []):
+            word_cands.add(candidate)
         
         # Vowels & Transliterations
         if 'ou' in w_low:
@@ -342,7 +414,7 @@ def get_search_variants(q):
             if v_str not in variants:
                 variants.append(v_str)
                 
-    return variants[:16]
+    return list(dict.fromkeys(variants[:1] + priority_variants + variants[1:]))[:24]
 
 
 class ScholarHandler(http.server.SimpleHTTPRequestHandler):
@@ -551,7 +623,7 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                     aid = a.get('id', '').split('/')[-1]
                     
                     if not any(r['name'].lower() == name.lower() for r in results):
-                        avatar_url = f"https://api.dicebear.com/7.x/notionists/svg?seed={urllib.parse.quote(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf"
+                        avatar_url = a.get('image_url') or a.get('image_thumbnail_url') or f"https://api.dicebear.com/7.x/notionists/svg?seed={urllib.parse.quote(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf"
                         results.append({
                             "id": aid,
                             "name": name,
@@ -560,15 +632,22 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                             "citations": cites_cnt,
                             "h_index": h_idx,
                             "avatar": avatar_url,
+                            "image_url": a.get('image_url') or "",
+                            "image_thumbnail_url": a.get('image_thumbnail_url') or "",
                             "source": "openalex"
                         })
             except Exception as e:
                 print("[API] OpenAlex search notice:", e)
 
-            # If results are still few, try spelling variants (fuzzy search for typos)
-            if len(results) < 3:
+            # If the first query did not produce a close match, try a few spelling
+            # variants even when the API returned unrelated popular authors.
+            has_close_result = any(
+                author_match_score(q, item.get('name', ''), item.get('affiliation', '')) >= 0.58
+                for item in results
+            )
+            if len(results) < 3 or not has_close_result:
                 variants = get_search_variants(q)
-                for var in variants[1:]:
+                for var in variants[1:5]:
                     if len(results) >= 8:
                         break
                     for p in presets:
@@ -586,8 +665,11 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                             cites_cnt = a.get('cited_by_count', 0)
                             h_idx = a.get('summary_stats', {}).get('h_index', 0)
                             aid = a.get('id', '').split('/')[-1]
-                            if not any(r['name'].lower() == name.lower() or r['id'] == aid for r in results):
-                                avatar_url = f"https://api.dicebear.com/7.x/notionists/svg?seed={urllib.parse.quote(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf"
+                            if (
+                                author_match_score(q, name, inst) >= 0.46
+                                or author_match_score(var, name, inst) >= 0.58
+                            ) and not any(r['name'].lower() == name.lower() or r['id'] == aid for r in results):
+                                avatar_url = a.get('image_url') or a.get('image_thumbnail_url') or f"https://api.dicebear.com/7.x/notionists/svg?seed={urllib.parse.quote(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf"
                                 results.append({
                                     "id": aid,
                                     "name": name,
@@ -596,10 +678,28 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                                     "citations": cites_cnt,
                                     "h_index": h_idx,
                                     "avatar": avatar_url,
+                                    "image_url": a.get('image_url') or "",
+                                    "image_thumbnail_url": a.get('image_thumbnail_url') or "",
                                     "source": "openalex"
                                 })
                     except Exception:
                         pass
+
+            search_variants = get_search_variants(q)[:8]
+            results.sort(
+                key=lambda item: (
+                    max(
+                        author_match_score(
+                            variant,
+                            item.get('name', ''),
+                            item.get('affiliation', ''),
+                        )
+                        for variant in search_variants
+                    ),
+                    item.get('citations', 0),
+                ),
+                reverse=True,
+            )
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')

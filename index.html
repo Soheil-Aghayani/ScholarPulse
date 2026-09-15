@@ -285,6 +285,12 @@
       flex-wrap: wrap;
     }
 
+    .search-hint {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.65rem;
+    }
+
     .search-input-wrap {
       flex: 1;
       min-width: 280px;
@@ -557,7 +563,6 @@
       padding: 1.5rem;
       margin-bottom: 1.5rem;
       box-shadow: var(--shadow-sm);
-      display: flex;
       flex-direction: column;
       gap: 1.25rem;
     }
@@ -1550,14 +1555,7 @@
             Search
           </button>
         </div>
-
-        <div class="preset-chips" style="margin-top: 0.85rem;">
-          <span>Featured Scholars:</span>
-          <button class="chip highlight" id="chipSearchMehrdadi" data-query="Nasser Mehrdadi">⭐ Prof. Nasser Mehrdadi (University of Tehran)</button>
-          <button class="chip" data-query="Roudabeh Samiee">Dr. Roudabeh Samiee (UT)</button>
-          <button class="chip" data-query="Ali Torabian">Prof. Ali Torabian (UT)</button>
-          <button class="chip" data-query="Yoshua Bengio">Prof. Yoshua Bengio (Mila)</button>
-        </div>
+        <p class="search-hint">Typos and common transliteration variants are okay — try “Naser Mehrdadi” or search by institution and research field.</p>
 
         <!-- Live Author Search Results -->
         <div id="authorSearchResults" class="author-search-results" style="display: none;"></div>
@@ -1663,9 +1661,7 @@
     <div class="author-card" id="authorCard">
       <div class="author-header">
         <div class="author-identity">
-          <div class="author-avatar" id="authorAvatar">
-            <span>NM</span>
-          </div>
+          <div class="author-avatar" id="authorAvatar" aria-label="Scholar profile picture"></div>
           <div class="author-details">
             <h2 id="authorName">Scholar Author</h2>
             <p class="affil" id="authorAffiliation">University of Tehran</p>
@@ -2043,6 +2039,7 @@
         affiliation: "Professor of Computer Science, Mila / Université de Montréal",
         email: "Verified email at umontreal.ca",
         interests: ["Deep Learning", "Machine Learning", "Artificial Intelligence"],
+        avatar: "https://scholar.googleusercontent.com/citations?view_op=view_photo&user=u1PBvywAAAAJ&citpid=2",
         scholarLink: "https://scholar.google.com/citations?user=u1PBvywAAAAJ"
       },
       papers: [
@@ -2079,6 +2076,7 @@
         affiliation: "Professor Emeritus, University of Toronto",
         email: "Verified email at cs.toronto.edu",
         interests: ["Neural Networks", "Deep Learning", "Cognitive Science"],
+        avatar: "https://scholar.googleusercontent.com/citations?view_op=view_photo&user=JicYPdAAAAAJ&citpid=2",
         scholarLink: "https://scholar.google.com/citations?user=JicYPdAAAAAJ"
       },
       papers: [
@@ -2208,12 +2206,16 @@
 
       let author = null;
       if (nameElem || doc.querySelector('.gsc_a_tr')) {
+        let avatarUrl = avatarElem?.getAttribute('src') || '';
+        if (avatarUrl && !avatarUrl.startsWith('http')) {
+          avatarUrl = new URL(avatarUrl, 'https://scholar.google.com').href;
+        }
         author = {
           name: nameElem ? nameElem.innerText.trim() : (state.author ? state.author.name : "Scholar Author"),
           affiliation: affilElem ? affilElem.innerText.trim() : "",
           email: emailElem ? emailElem.innerText.trim() : "",
           interests: Array.from(interestElems).map(el => el.innerText.trim()).filter(Boolean),
-          avatarUrl: avatarElem ? avatarElem.src : null,
+          avatarUrl: avatarUrl || null,
           scholarLink: profileUrl || "https://scholar.google.com"
         };
       }
@@ -2280,6 +2282,10 @@
       return null;
     }
 
+    function canUseLocalBridge() {
+      return window.location.protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+    }
+
     /* Fast Scraper: Tries local Python server first, then public proxies with strict 4s timeout */
     async function startLiveScraper(inputVal) {
       const userId = extractScholarUserId(inputVal);
@@ -2295,24 +2301,28 @@
 
       dom.scrapeStatus.style.display = 'flex';
       dom.statusTitle.innerText = `Connecting to Google Scholar (User: ${userId})...`;
-      dom.statusDesc.innerText = "Checking local Python bridge (http://localhost:5000)...";
+      dom.statusDesc.innerText = canUseLocalBridge()
+        ? "Checking local Python bridge (http://localhost:5000)..."
+        : "Testing the public Scholar gateway...";
 
       // 1. Check local server bridge (instant & 100% works)
-      try {
-        const localPromise = fetch(`http://localhost:5000/api/scrape?user=${encodeURIComponent(userId)}`, { signal: AbortSignal.timeout(12000) });
-        const localRes = await localPromise;
-        if (localRes.ok) {
-          const data = await localRes.json();
-          if (data.papers && data.papers.length > 0) {
-            setDataset(data.author, data.papers);
-            showToast(`Extracted ${data.papers.length} publications in seconds!`);
-            state.isScraping = false;
-            dom.scrapeStatus.style.display = 'none';
-            return;
+      if (canUseLocalBridge()) {
+        try {
+          const localPromise = fetch(`http://localhost:5000/api/scrape?user=${encodeURIComponent(userId)}`, { signal: AbortSignal.timeout(12000) });
+          const localRes = await localPromise;
+          if (localRes.ok) {
+            const data = await localRes.json();
+            if (data.papers && data.papers.length > 0) {
+              setDataset(data.author, data.papers);
+              showToast(`Extracted ${data.papers.length} publications in seconds!`);
+              state.isScraping = false;
+              dom.scrapeStatus.style.display = 'none';
+              return;
+            }
           }
+        } catch (err) {
+          // Local bridge not active, fall back to public proxies.
         }
-      } catch (err) {
-        // Local bridge not active, fall back to public proxies
       }
 
       // 2. Check public proxies with STRICT 4s timeout
@@ -2519,6 +2529,23 @@
       dom.activeSortLabel.innerText = `• Sorted by ${fieldNames[state.sortField]} (${dirNames})`;
     }
 
+    const FALLBACK_AVATAR_COLORS = 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
+
+    function getFallbackAvatarUrl(name) {
+      return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(name || 'Scholar')}&backgroundColor=${FALLBACK_AVATAR_COLORS}`;
+    }
+
+    function getAvatarUrl(profile) {
+      return profile?.avatar || profile?.avatarUrl || profile?.image_url || profile?.image_thumbnail_url || getFallbackAvatarUrl(profile?.name);
+    }
+
+    function buildAvatarImage(profile) {
+      const name = profile?.name || 'Scholar';
+      const avatarSrc = getAvatarUrl(profile);
+      const fallbackSrc = getFallbackAvatarUrl(name);
+      return `<img src="${escapeHtml(avatarSrc)}" data-fallback-src="${escapeHtml(fallbackSrc)}" alt="${escapeHtml(name)} profile picture" loading="lazy" decoding="async" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;">`;
+    }
+
     /* Set Dataset & Compute Analytics */
     function setDataset(author, papers) {
       state.author = author;
@@ -2553,11 +2580,7 @@
       dom.authorEmail.innerText = author.email || "";
       dom.authorScholarLink.href = author.scholarLink || "#";
 
-      let avatarSrc = author.avatar || author.avatarUrl;
-      if (!avatarSrc) {
-        avatarSrc = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(author.name || 'Scholar')}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
-      }
-      dom.authorAvatar.innerHTML = `<img src="${avatarSrc}" alt="${escapeHtml(author.name || 'Author')}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(author.name || 'Scholar')}';">`;
+      dom.authorAvatar.innerHTML = buildAvatarImage(author);
 
       dom.authorInterests.innerHTML = '';
       if (author.interests && author.interests.length > 0) {
@@ -2984,27 +3007,29 @@
           const docxFileName = `${authorSlug}_Publications_${styleName}.docx`;
 
           // A. Try Python server bridge (generates native binary .docx via python-docx)
-          try {
-            const formattedList = state.filteredPapers.map((p, idx) => formatCitation(p, idx + 1, state.activeStyle));
-            const payload = {
-              author: state.author || { name: "Scholar Author" },
-              papers: state.filteredPapers,
-              style: styleName,
-              citations: formattedList
-            };
-            const res = await fetch('http://localhost:5000/api/export-docx', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-              const docxBlob = await res.blob();
-              downloadBlob(docxBlob, docxFileName);
-              showToast("Word (.docx) file downloaded successfully!");
-              return;
+          if (canUseLocalBridge()) {
+            try {
+              const formattedList = state.filteredPapers.map((p, idx) => formatCitation(p, idx + 1, state.activeStyle));
+              const payload = {
+                author: state.author || { name: "Scholar Author" },
+                papers: state.filteredPapers,
+                style: styleName,
+                citations: formattedList
+              };
+              const res = await fetch('http://localhost:5000/api/export-docx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              if (res.ok) {
+                const docxBlob = await res.blob();
+                downloadBlob(docxBlob, docxFileName);
+                showToast("Word (.docx) file downloaded successfully!");
+                return;
+              }
+            } catch (err) {
+              console.log("Local bridge not responding, falling back to Word document builder:", err);
             }
-          } catch (err) {
-            console.log("Local bridge not responding, falling back to Word document builder:", err);
           }
 
           // B. Client-side Word-compatible document generator
@@ -3390,7 +3415,20 @@
       }
     }
 
-    /* Live Author Search with Typo Tolerance, Phonetic Variants & Serverless Fallback */
+    /* Live Author Search with typo tolerance, transliteration variants & serverless fallback */
+    function normalizeSearchText(value) {
+      return String(value || '')
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')
+        .trim();
+    }
+
+    function searchTokens(value) {
+      return normalizeSearchText(value).split(/\s+/).filter(token => token.length > 1);
+    }
+
     function levenshteinDist(s1, s2) {
       if (s1.length < s2.length) return levenshteinDist(s2, s1);
       if (s2.length === 0) return s1.length;
@@ -3408,103 +3446,112 @@
       return prevRow[prevRow.length - 1];
     }
 
-    function fuzzyMatchAuthor(query, target) {
-      if (!query || !target) return False;
-      const qLower = query.toLowerCase().trim();
-      const tLower = target.toLowerCase().trim();
-      if (tLower.includes(qLower) || qLower.includes(tLower)) return true;
-
-      const qWords = qLower.split(/[\s\.\,\-_]+/).filter(w => w.length > 1);
-      const tWords = tLower.split(/[\s\.\,\-_]+/).filter(w => w.length > 1);
-      if (qWords.length === 0) return false;
-
-      let matched = 0;
-      for (const qw of qWords) {
-        let found = false;
-        for (const tw of tWords) {
-          if (tw.includes(qw) || qw.includes(tw)) {
-            found = true;
-            break;
-          }
-          const maxDist = qw.length <= 5 ? 1 : 2;
-          if (levenshteinDist(qw, tw) <= maxDist) {
-            found = true;
-            break;
-          }
-        }
-        if (found) matched++;
+    function tokenSimilarity(queryToken, targetToken) {
+      if (!queryToken || !targetToken) return 0;
+      if (queryToken === targetToken) return 1;
+      if (targetToken.includes(queryToken) || queryToken.includes(targetToken)) {
+        return 0.86 + (Math.min(queryToken.length, targetToken.length) / Math.max(queryToken.length, targetToken.length)) * 0.08;
       }
-      return matched === qWords.length;
+      const distance = levenshteinDist(queryToken, targetToken);
+      const maxDistance = queryToken.length <= 4 ? 1 : queryToken.length <= 7 ? 2 : 3;
+      if (distance > maxDistance) return 0;
+      return Math.max(0, 1 - (distance / Math.max(queryToken.length, targetToken.length)));
     }
 
-    function getSearchVariants(q) {
-      const words = q.trim().split(/\s+/);
-      const variants = [q.trim()];
-      for (let i = 0; i < words.length; i++) {
-        const w = words[i];
-        const wLow = w.toLowerCase();
-        const wordCands = new Set();
+    function bestTokenSimilarity(queryToken, targetTokens) {
+      return targetTokens.reduce((best, targetToken) => Math.max(best, tokenSimilarity(queryToken, targetToken)), 0);
+    }
 
-        if (wLow.includes('ou')) {
-          wordCands.add(w.replace(/ou/gi, 'o'));
-          wordCands.add(w.replace(/ou/gi, 'u'));
-        } else if (wLow.includes('o')) {
-          wordCands.add(w.replace(/o/gi, 'ou'));
-          wordCands.add(w.replace(/o/gi, 'oo'));
-        }
+    function authorMatchScore(query, profile) {
+      const normalizedQuery = normalizeSearchText(query);
+      const normalizedName = normalizeSearchText(profile?.name);
+      const normalizedAffiliation = normalizeSearchText(profile?.affiliation);
+      if (!normalizedQuery || !normalizedName) return 0;
 
-        if (wLow.includes('oo')) {
-          wordCands.add(w.replace(/oo/gi, 'ou'));
-          wordCands.add(w.replace(/oo/gi, 'u'));
-        }
+      if (normalizedName === normalizedQuery) return 1;
+      if (normalizedName.includes(normalizedQuery)) return 0.98;
+      if (normalizedAffiliation.includes(normalizedQuery)) return 0.82;
 
-        if (wLow.includes('ee')) {
-          wordCands.add(w.replace(/ee/gi, 'i'));
-        } else if (wLow.includes('i')) {
-          wordCands.add(w.replace(/i/gi, 'ee'));
-          wordCands.add(w.replace(/i/gi, 'y'));
-        }
+      const queryTokens = searchTokens(query);
+      const nameTokens = searchTokens(profile.name);
+      const affiliationTokens = searchTokens(profile.affiliation);
+      if (queryTokens.length === 0) return 0;
 
-        if (wLow.includes('ei')) {
-          wordCands.add(w.replace(/ei/gi, 'ee'));
-          wordCands.add(w.replace(/ei/gi, 'ey'));
-        }
+      const nameScores = queryTokens.map(token => bestTokenSimilarity(token, nameTokens));
+      const affiliationScores = queryTokens.map(token => bestTokenSimilarity(token, affiliationTokens));
+      const combinedScores = queryTokens.map((_, index) => Math.max(nameScores[index], affiliationScores[index] * 0.88));
+      const minimumScore = queryTokens.length === 1 ? 0.58 : 0.52;
+      if (combinedScores.some(score => score < minimumScore)) return 0;
 
-        if (wLow.includes('zadeh')) {
-          wordCands.add(w.replace(/zadeh/gi, 'zade'));
-        } else if (wLow.includes('zade')) {
-          wordCands.add(w.replace(/zade/gi, 'zadeh'));
-        }
+      const averageScore = combinedScores.reduce((sum, score) => sum + score, 0) / combinedScores.length;
+      const nameCoverage = nameScores.reduce((sum, score) => sum + score, 0) / nameScores.length;
+      return Math.min(0.96, (averageScore * 0.68) + (nameCoverage * 0.32));
+    }
 
-        if (wLow.includes('pour')) {
-          wordCands.add(w.replace(/pour/gi, 'poor'));
-          wordCands.add(w.replace(/pour/gi, 'por'));
-        } else if (wLow.includes('por')) {
-          wordCands.add(w.replace(/por/gi, 'pour'));
-        }
+    function fuzzyMatchAuthor(query, target) {
+      return authorMatchScore(query, { name: target, affiliation: '' }) >= 0.58;
+    }
 
-        // Single vs Double Consonant mutations (l, s, m, d, t, r, n, p, b, f, z)
-        for (let idx = 0; idx < w.length; idx++) {
-          const cLow = w[idx].toLowerCase();
-          if ('lsmdtrnpbfz'.includes(cLow)) {
-            if (idx + 1 < w.length && w[idx + 1].toLowerCase() === cLow) {
-              const reduced = w.slice(0, idx) + w.slice(idx + 1);
-              wordCands.add(reduced);
-            } else if ((idx === 0 || w[idx - 1].toLowerCase() !== cLow) && (idx + 1 === w.length || w[idx + 1].toLowerCase() !== cLow)) {
-              const doubled = w.slice(0, idx + 1) + cLow + w.slice(idx + 1);
-              wordCands.add(doubled);
-            }
+    const SEARCH_SPELLING_VARIANTS = {
+      nasser: ['naser'],
+      naser: ['nasser'],
+      hossein: ['hosein', 'hussein'],
+      hosein: ['hossein', 'hussein'],
+      hussein: ['hossein', 'hosein'],
+      hassan: ['hasan'],
+      hasan: ['hassan'],
+      mohammed: ['mohammad', 'mohamed', 'mohamad'],
+      mohammad: ['mohammed', 'mohamed', 'mohamad'],
+      mohamed: ['mohammad', 'mohammed', 'mohamad'],
+      mohamad: ['mohammad', 'mohammed', 'mohamed'],
+      mehdi: ['mahdi'],
+      mahdi: ['mehdi'],
+      rodabeh: ['roudabeh'],
+      roudabeh: ['rodabeh'],
+      samiee: ['samie', 'samii'],
+      samie: ['samiee', 'samii']
+    };
+
+    function getSearchVariants(query) {
+      const rawQuery = query.trim();
+      if (!rawQuery) return [];
+
+      const words = rawQuery.split(/\s+/).map(word => word.toLowerCase());
+      const variants = new Set([rawQuery]);
+      const addVariant = (wordIndex, candidate) => {
+        if (!candidate || candidate === words[wordIndex]) return;
+        const variantWords = [...words];
+        variantWords[wordIndex] = candidate;
+        variants.add(variantWords.join(' '));
+      };
+
+      words.forEach((word, index) => {
+        (SEARCH_SPELLING_VARIANTS[word] || []).forEach(candidate => addVariant(index, candidate));
+
+        if (word.includes('ou')) addVariant(index, word.replace(/ou/g, 'o'));
+        if (word.includes('o')) addVariant(index, word.replace(/o/g, 'ou'));
+        if (word.includes('oo')) addVariant(index, word.replace(/oo/g, 'u'));
+        if (word.includes('ee')) addVariant(index, word.replace(/ee/g, 'i'));
+        if (word.includes('i')) addVariant(index, word.replace(/i/g, 'ee'));
+        if (word.includes('ei')) addVariant(index, word.replace(/ei/g, 'ey'));
+        if (word.includes('zadeh')) addVariant(index, word.replace(/zadeh/g, 'zade'));
+        if (word.includes('zade')) addVariant(index, word.replace(/zade/g, 'zadeh'));
+        if (word.includes('pour')) addVariant(index, word.replace(/pour/g, 'poor'));
+        if (word.includes('por')) addVariant(index, word.replace(/por/g, 'pour'));
+
+        // Accommodate the common single/double-consonant spelling difference.
+        for (let charIndex = 0; charIndex < word.length; charIndex++) {
+          const character = word[charIndex];
+          if (!'lsmdtrnpbfz'.includes(character)) continue;
+          if (word[charIndex + 1] === character) {
+            addVariant(index, word.slice(0, charIndex) + word.slice(charIndex + 1));
+          } else if (word[charIndex - 1] !== character) {
+            addVariant(index, word.slice(0, charIndex + 1) + character + word.slice(charIndex + 1));
           }
         }
+      });
 
-        wordCands.forEach(cand => {
-          const vWords = [...words];
-          vWords[i] = cand;
-          const vStr = vWords.join(' ');
-          if (!variants.includes(vStr)) variants.push(vStr);
-        });
-      }
-      return variants.slice(0, 16);
+      return Array.from(variants).slice(0, 24);
     }
 
     const CLIENT_PRESETS = [
@@ -3567,6 +3614,16 @@
         h_index: 158,
         avatar: "https://scholar.googleusercontent.com/citations?view_op=view_photo&user=WLN3QrAAAAAJ&citpid=2",
         source: "scholar"
+      },
+      {
+        id: "bnprOf8AAAAJ",
+        name: "Soheil Aghayani",
+        affiliation: "University of Tehran",
+        works_count: 3,
+        citations: 3,
+        h_index: 1,
+        avatar: "https://scholar.googleusercontent.com/citations?view_op=view_photo&user=bnprOf8AAAAJ&citpid=2",
+        source: "scholar"
       }
     ];
 
@@ -3574,44 +3631,56 @@
       const results = [];
       const variants = getSearchVariants(query);
 
-      // Check presets with typo tolerance
+      const addResult = (candidate, score) => {
+        if (!candidate || !candidate.id || !candidate.name) return;
+        const normalizedScore = Number.isFinite(score) ? score : authorMatchScore(query, candidate);
+        const existing = results.find(result => result.id === candidate.id || normalizeSearchText(result.name) === normalizeSearchText(candidate.name));
+        if (existing) {
+          if (normalizedScore > (existing.match_score || 0)) existing.match_score = normalizedScore;
+          if (!existing.avatar && candidate.avatar) existing.avatar = candidate.avatar;
+          return;
+        }
+        results.push({ ...candidate, match_score: normalizedScore });
+      };
+
+      // Check the local quick index with the same fuzzy score used for API results.
       for (const p of CLIENT_PRESETS) {
-        let isMatch = false;
-        for (const v of variants) {
-          if (fuzzyMatchAuthor(v, p.name) || fuzzyMatchAuthor(v, p.affiliation) || p.id.toLowerCase().includes(v.toLowerCase())) {
-            isMatch = true;
-            break;
-          }
-        }
-        if (isMatch && !results.some(r => r.id === p.id)) {
-          results.push(p);
-        }
+        const presetScore = Math.max(
+          ...variants.map(variant => Math.max(
+            authorMatchScore(variant, p),
+            p.id.toLowerCase().includes(normalizeSearchText(variant)) ? 0.99 : 0
+          ))
+        );
+        if (presetScore >= 0.58) addResult(p, presetScore);
       }
 
-      // Query OpenAlex directly from browser (CORS enabled)
-      const queryList = [query, ...variants.slice(1, 4)];
+      // Query OpenAlex directly from the browser. Its image_url is a real profile
+      // photo when the author has supplied one; the illustrated avatar is only a fallback.
+      const queryList = variants.slice(0, 5);
       for (const qTerm of queryList) {
-        if (results.length >= 8) break;
         try {
-          const alexRes = await fetch(`https://api.openalex.org/authors?search=${encodeURIComponent(qTerm)}`);
+          const alexRes = await fetch(`https://api.openalex.org/authors?search=${encodeURIComponent(qTerm)}&per-page=25`);
           if (alexRes.ok) {
             const alexData = await alexRes.json();
-            for (const a of (alexData.results || []).slice(0, 6)) {
+            for (const a of (alexData.results || []).slice(0, 12)) {
               const name = a.display_name || '';
               const inst = a.last_known_institutions?.[0]?.display_name || '';
               const aid = a.id?.split('/').pop() || '';
-              if (!results.some(r => r.name.toLowerCase() === name.toLowerCase() || r.id === aid)) {
-                results.push({
-                  id: aid,
-                  name: name,
-                  affiliation: inst,
-                  works_count: a.works_count || 0,
-                  citations: a.cited_by_count || 0,
-                  h_index: a.summary_stats?.h_index || 0,
-                  avatar: `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
-                  source: "openalex"
-                });
-              }
+              if (!name || !aid) continue;
+              const candidate = {
+                id: aid,
+                name,
+                affiliation: inst,
+                works_count: a.works_count || 0,
+                citations: a.cited_by_count || 0,
+                h_index: a.summary_stats?.h_index || 0,
+                image_url: a.image_url || '',
+                image_thumbnail_url: a.image_thumbnail_url || '',
+                avatar: a.image_url || a.image_thumbnail_url || getFallbackAvatarUrl(name),
+                source: "openalex"
+              };
+              const score = authorMatchScore(query, candidate);
+              if (score >= 0.46) addResult(candidate, score);
             }
           }
         } catch (e) {
@@ -3619,7 +3688,9 @@
         }
       }
 
-      return results;
+      return results
+        .sort((a, b) => (b.match_score - a.match_score) || ((b.citations || 0) - (a.citations || 0)))
+        .slice(0, 8);
     }
 
     function initAuthorSearch() {
@@ -3637,23 +3708,25 @@
           </div>
         `;
 
-        // 1. Try local backend if running
+        // 1. Try the local backend only when the page is running locally.
         let foundResults = null;
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2200);
-          const res = await fetch(`http://localhost:5000/api/search-author?q=${encodeURIComponent(query)}`, {
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.results && data.results.length > 0) {
-              foundResults = data.results;
+        if (canUseLocalBridge()) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2200);
+            const res = await fetch(`http://localhost:5000/api/search-author?q=${encodeURIComponent(query)}`, {
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (res.ok) {
+              const data = await res.json();
+              if (data.results && data.results.length > 0) {
+                foundResults = data.results;
+              }
             }
+          } catch (err) {
+            // Local bridge not available; use the browser-only search below.
           }
-        } catch (err) {
-          // Local bridge not available, fall back to pure browser search
         }
 
         // 2. If no server or no results from server, run serverless browser search
@@ -3693,8 +3766,7 @@
 
       let html = '';
       authors.forEach(a => {
-        const avatarSrc = a.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(a.name || 'Scholar')}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
-        const avatarHtml = `<img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(a.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src='https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(a.name || 'Scholar')}';">`;
+        const avatarHtml = buildAvatarImage(a);
 
         html += `
           <div class="author-result-card" data-id="${escapeHtml(a.id)}" data-name="${escapeHtml(a.name)}" data-source="${escapeHtml(a.source || 'scholar')}">
@@ -3748,25 +3820,27 @@
             return;
           }
 
-          // 1. Try server works API
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2500);
-            const res = await fetch(`http://localhost:5000/api/author-works?author_id=${encodeURIComponent(aid)}`, {
-              signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (res.ok) {
-              const data = await res.json();
-              if (data.papers && data.papers.length > 0) {
-                setDataset(data.author, data.papers);
-                showToast(`Loaded ${data.papers.length} publications for ${aname}!`);
-                dom.authorCard.scrollIntoView({ behavior: 'smooth' });
-                return;
+          // 1. Try the local works API when it is available.
+          if (canUseLocalBridge()) {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 2500);
+              const res = await fetch(`http://localhost:5000/api/author-works?author_id=${encodeURIComponent(aid)}`, {
+                signal: controller.signal
+              });
+              clearTimeout(timeoutId);
+              if (res.ok) {
+                const data = await res.json();
+                if (data.papers && data.papers.length > 0) {
+                  setDataset(data.author, data.papers);
+                  showToast(`Loaded ${data.papers.length} publications for ${aname}!`);
+                  dom.authorCard.scrollIntoView({ behavior: 'smooth' });
+                  return;
+                }
               }
+            } catch (err) {
+              console.log("Local author-works bridge skipped, using browser direct loader:", err);
             }
-          } catch (err) {
-            console.log("Local author-works bridge skipped, using browser direct loader:", err);
           }
 
           // 2. Pure Browser Serverless Loader (OpenAlex direct works & metadata)
@@ -3792,12 +3866,12 @@
                   };
                 });
 
-                const authorObj = {
-                  name: aname,
-                  affiliation: card.querySelector('.author-result-affil')?.innerText || '',
-                  email: '',
-                  avatar: `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(aname)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`,
-                  interests: [],
+                  const authorObj = {
+                    name: aname,
+                    affiliation: card.querySelector('.author-result-affil')?.innerText || '',
+                    email: '',
+                    avatar: card.querySelector('img')?.currentSrc || card.querySelector('img')?.src || getFallbackAvatarUrl(aname),
+                    interests: [],
                   scholarLink: `https://openalex.org/authors/${aid}`
                 };
 
