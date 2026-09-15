@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller / Binaries
+_internal/
+*.exe
+*.dist/
+*.build/
+
+# Temporary data / exports
+*.docx
+*.csv
+*.bib
+*.log
+
+# Scratch testing & patching scripts
+test_*.py
+patch_*.py
+update_*.py
+add_*.py
+check_*.py
+resolve_*.py
+generate_exports.py
+scholar_search_sample.html
+
+# IDE & system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

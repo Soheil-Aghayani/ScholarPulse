@@ -1,0 +1,22 @@
+{
+  "name": "ScholarPulse — Academic Publication Suite",
+  "short_name": "ScholarPulse",
+  "description": "Scrape, search, format, sort, and export Google Scholar publications with complete titles, citations, and analytics.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/notionists/svg?seed=ScholarPulse&backgroundColor=2563eb",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/notionists/svg?seed=ScholarPulse&backgroundColor=2563eb",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

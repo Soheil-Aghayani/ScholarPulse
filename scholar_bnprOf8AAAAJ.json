@@ -1,0 +1,38 @@
+{
+  "author": {
+    "name": "Soheil Aghayani",
+    "affiliation": "Verified email at ut.ac.ir -",
+    "email": "Verified email at ut.ac.ir -",
+    "interests": [],
+    "scholarLink": "https://scholar.google.com/citations?user=bnprOf8AAAAJ"
+  },
+  "papers": [
+    {
+      "id": "paper_1",
+      "title": "Assessment of Biomass Resources in Iran and Worldwide: Diversity Analysis in Rural Areas with a Focus on Municipal Solid Waste and Livestock Manure",
+      "authors": "S Aghayani, M Pazoki, A Bavandpor, A Mollasalehi",
+      "venue": "Pollution 12 (1), 127-139, 2026",
+      "year": 2026,
+      "citations": 2,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=bnprOf8AAAAJ&pagesize=100&citation_for_view=bnprOf8AAAAJ:W7OEmFMy1HYC"
+    },
+    {
+      "id": "paper_2",
+      "title": "Siting a waste transfer station in District 6 of Karaj Municipality to reduce pollution",
+      "authors": "R Samiee-Zafarghandi, S Aghayani",
+      "venue": "Pollution 11 (3), 593-608, 2025",
+      "year": 2025,
+      "citations": 1,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=bnprOf8AAAAJ&pagesize=100&citation_for_view=bnprOf8AAAAJ:Y0pCki6q_DkC"
+    },
+    {
+      "id": "paper_3",
+      "title": "Assessment of Landfill Gas Production in Saveh City Using the LandGEM Model: A Comprehensive Analysis",
+      "authors": "A Mollasalehi, M Pazoki, S Aghayani, S Borji",
+      "venue": "Advances in Environmental Technology, e1686, 2026",
+      "year": 2026,
+      "citations": 0,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=bnprOf8AAAAJ&pagesize=100&citation_for_view=bnprOf8AAAAJ:YsMSGLbcyi4C"
+    }
+  ]
+}
