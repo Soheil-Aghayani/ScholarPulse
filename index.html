@@ -1850,14 +1850,14 @@
         <div class="input-group">
           <div class="search-input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="authorSearchInput" class="form-input" placeholder="Search scholar by name or university (e.g. Nasser Mehrdadi, Ali Torabian, Roudabeh Samiee)...">
+            <input type="text" id="authorSearchInput" class="form-input" placeholder="Search by scholar name, institution, or research field">
           </div>
           <button id="btnSearchAuthor" class="btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Search
           </button>
         </div>
-        <p class="search-hint">Typos and common transliteration variants are okay — try “Naser Mehrdadi” or search by institution and research field.</p>
+        <p class="search-hint">Small spelling and transliteration differences are okay. Search by name, institution, or research field.</p>
 
         <!-- Live Author Search Results -->
         <div class="author-search-toolbar" id="authorSearchToolbar" style="display: none;">
@@ -1878,7 +1878,7 @@
         <div class="input-group">
           <div class="search-input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="scholarInput" class="form-input" placeholder="Paste Google Scholar Profile URL or User ID (e.g. 8EUCPOUAAAAJ)..." value="https://scholar.google.com/citations?user=8EUCPOUAAAAJ">
+            <input type="text" id="scholarInput" class="form-input" placeholder="Paste a Google Scholar profile URL or user ID">
           </div>
           <button id="btnStartScrape" class="btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -1888,7 +1888,7 @@
 
         <div class="preset-chips">
           <span>1-Click Load:</span>
-          <button class="chip highlight" id="chipMehrdadi" data-id="8EUCPOUAAAAJ">⭐ Nasser Mehrdadi (353 Papers)</button>
+          <button class="chip highlight" id="chipMehrdadi" data-id="8EUCPOUAAAAJ">Nasser Mehrdadi (353 Papers)</button>
           <button class="chip" data-id="u1PBvywAAAAJ">Yoshua Bengio (Mila)</button>
           <button class="chip" data-id="JicYPdAAAAAJ">Geoffrey Hinton (Toronto)</button>
           <button class="chip" data-id="WLN3QrAAAAAJ">Yann LeCun (NYU/Meta)</button>
@@ -1968,10 +1968,10 @@
         </p>
         <div class="action-buttons">
           <button class="btn-secondary" id="btnAlertStartBat" style="border-color: var(--primary); color: var(--primary-text);">
-            🚀 Launch Local Bridge (start.bat / server.py)
+            Launch Local Bridge (start.bat / server.py)
           </button>
           <button class="btn-secondary" id="btnAlertSwitchTab">
-            📋 Paste Raw HTML (100% Guaranteed)
+            Paste Raw HTML (100% Guaranteed)
           </button>
         </div>
       </div>
@@ -2058,7 +2058,7 @@
             <button class="style-pill" data-style="mla">MLA 9th</button>
             <button class="style-pill" data-style="vancouver">Vancouver</button>
             <button class="style-pill" data-style="bibtex">BibTeX</button>
-            <button class="style-pill" data-style="custom">✨ Custom Template</button>
+            <button class="style-pill" data-style="custom">Custom Template</button>
           </div>
         </div>
 
@@ -2291,7 +2291,7 @@
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
       </svg>
       <h3>Ready to Scrape & Format Scholar Papers</h3>
-      <p>Enter any Google Scholar profile URL or User ID above, or click below to load pre-scraped profiles.</p>
+      <p>Search for a scholar above, or open Loaded Profiles to browse the available demo datasets.</p>
     </div>
 
   </main>
@@ -4607,8 +4607,8 @@
         const hasPaperCount = a.works_count !== null && a.works_count !== undefined;
         const hasCitationCount = a.citations !== null && a.citations !== undefined;
         const statsHtml = [
-          hasPaperCount ? `<span>📚 <strong>${Number(a.works_count || 0).toLocaleString()}</strong> papers</span>` : '',
-          hasCitationCount ? `<span>⭐ <strong>${Number(a.citations || 0).toLocaleString()}</strong> ${escapeHtml(a.citation_label || 'citations')}</span>` : '',
+          hasPaperCount ? `<span><strong>${Number(a.works_count || 0).toLocaleString()}</strong> papers</span>` : '',
+          hasCitationCount ? `<span><strong>${Number(a.citations || 0).toLocaleString()}</strong> ${escapeHtml(a.citation_label || 'citations')}</span>` : '',
           a.h_index ? `<span>h: <strong>${a.h_index}</strong></span>` : ''
         ].filter(Boolean).join('');
 
