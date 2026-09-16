@@ -31,11 +31,14 @@ for (const relativePath of staticFiles) {
   await copyFile(source, target);
 }
 
-if (nativeBuild) {
-  const backend = String(process.env.SCHOLARPULSE_API_BASE || defaultBackend).trim().replace(/\/+$/, '');
+const configuredBackend = String(process.env.SCHOLARPULSE_API_BASE || '').trim().replace(/\/+$/, '');
+
+if (nativeBuild || configuredBackend) {
+  const backend = configuredBackend || defaultBackend;
   const indexPath = path.join(outputDir, 'index.html');
   const indexHtml = await readFile(indexPath, 'utf8');
-  const bootstrap = `  <script>window.SCHOLARPULSE_NATIVE = true; window.SCHOLARPULSE_API_BASE = ${JSON.stringify(backend)};</script>\n`;
+  const nativeFlag = nativeBuild ? 'window.SCHOLARPULSE_NATIVE = true; ' : '';
+  const bootstrap = `  <script>${nativeFlag}window.SCHOLARPULSE_API_BASE = ${JSON.stringify(backend)};</script>\n`;
   await writeFile(indexPath, indexHtml.replace(/<head>/i, `<head>\n${bootstrap}`), 'utf8');
 }
 

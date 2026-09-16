@@ -30,6 +30,8 @@ jobs:
           node-version: 20
 
       - name: Build web assets
+        env:
+          SCHOLARPULSE_API_BASE: https://scholarpulse-hfew.onrender.com
         run: npm run build
 
       - name: Configure Pages

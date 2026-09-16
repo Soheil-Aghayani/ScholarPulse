@@ -4016,13 +4016,18 @@
               const res = await fetch(exportBackendUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(20000)
               });
               if (res.ok) {
                 const docxBlob = await res.blob();
-                downloadBlob(docxBlob, docxFileName);
-                showToast("Word (.docx) file downloaded successfully!");
-                return;
+                const signature = new Uint8Array(await docxBlob.slice(0, 2).arrayBuffer());
+                if (signature[0] === 0x50 && signature[1] === 0x4b) {
+                  downloadBlob(docxBlob, docxFileName);
+                  showToast("Word (.docx) file downloaded successfully!");
+                  return;
+                }
+                console.warn("Word export backend returned a non-DOCX response; using the safe compatibility fallback.");
               }
             } catch (err) {
               console.log("Python backend not responding, falling back to Word document builder:", err);
@@ -4064,9 +4069,14 @@
 
           docHtml += `</div></body></html>`;
 
+          // HTML is Word-compatible, but it is not an Office Open XML package.
+          // Never label this fallback as .docx because Word will report it as
+          // unreadable content. The hosted/local Python bridge above produces
+          // the real .docx file when it is available.
+          const fallbackFileName = `${authorSlug}_Publications_${styleName}.doc`;
           const docBlob = new Blob(['\ufeff' + docHtml], { type: 'application/msword;charset=utf-8' });
-          downloadBlob(docBlob, docxFileName);
-          showToast("Word (.docx) file downloaded!");
+          downloadBlob(docBlob, fallbackFileName);
+          showToast("Word-compatible .doc file downloaded. For .docx, reconnect the ScholarPulse backend.");
         });
       }
 

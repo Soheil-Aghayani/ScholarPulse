@@ -11,12 +11,14 @@ ScholarPulse is a free academic research toolkit for finding scholars, loading G
 
 | Edition | Best for | What it needs |
 | :--- | :--- | :--- |
-| [Web app](https://soheil-aghayani.github.io/ScholarPulse/) | Any modern browser | Nothing to install. The static edition uses OpenAlex for its browser-side fallback. |
+| [Web app](https://soheil-aghayani.github.io/ScholarPulse/) | Any modern browser | Nothing to install. Pages uses the free hosted backend for exports and exact requests, with an OpenAlex fallback when it is unavailable. |
 | [Hosted app](https://scholarpulse-hfew.onrender.com/) | Exact Scholar profile and publication requests | The free Render service. It may sleep when unused and Google Scholar may still rate-limit it. |
 | Windows release | A dedicated PC workspace | Download the Windows installer from [Releases](https://github.com/Soheil-Aghayani/ScholarPulse/releases/latest). |
 | Android release | ScholarPulse on a phone | Download and install the APK from [Releases](https://github.com/Soheil-Aghayani/ScholarPulse/releases/latest). |
 
 No account, paid API, or bank-card information is required by ScholarPulse. The hosted backend is optional and runs on Render’s free plan.
+
+Word exports from the backend are real `.docx` files. If no backend is reachable, ScholarPulse uses a clearly labeled Word-compatible `.doc` fallback instead of producing a misleading or corrupted `.docx` file.
 
 ## What it does
 
