@@ -1,6 +1,6 @@
 [package]
 name = "scholarpulse"
-version = "1.0.0"
+version = "1.0.1"
 description = "ScholarPulse — academic research and citation toolkit"
 authors = ["Soheil Aghayani"]
 license = "MIT"
