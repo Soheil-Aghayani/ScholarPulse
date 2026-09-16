@@ -73,6 +73,10 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The action's default includes the retired `tools` package, which
+          # current GitHub-hosted runners no longer provide.
+          packages: platform-tools
 
       - name: Install Android SDK packages
         run: |
