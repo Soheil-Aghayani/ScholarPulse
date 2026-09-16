@@ -1,0 +1,17 @@
+{
+  "name": "scholarpulse",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-app.mjs",
+    "build:native": "node scripts/build-app.mjs --native --out dist",
+    "tauri": "tauri",
+    "native:dev": "tauri dev",
+    "native:build": "tauri build",
+    "native:android": "tauri android build --apk"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

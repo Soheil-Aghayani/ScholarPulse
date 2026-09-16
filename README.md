@@ -1,136 +1,134 @@
-# 🎓 ScholarPulse — Academic Publication Suite & Citation Formatter
+# ScholarPulse
 
-[![Live Website](https://img.shields.io/badge/Live%20Website-GitHub%20Pages-2563eb?style=for-the-badge&logo=github)](https://soheil-aghayani.github.io/ScholarPulse/)
-[![PWA Foundation](https://img.shields.io/badge/PWA-Foundation-10b981?style=for-the-badge&logo=pwa)](https://soheil-aghayani.github.io/ScholarPulse/)
-[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Live website](https://img.shields.io/badge/Live%20website-GitHub%20Pages-2563eb?style=for-the-badge&logo=github&logoColor=white)](https://soheil-aghayani.github.io/ScholarPulse/)
+[![Latest release](https://img.shields.io/github/v/release/Soheil-Aghayani/ScholarPulse?style=for-the-badge&label=Latest%20release)](https://github.com/Soheil-Aghayani/ScholarPulse/releases/latest)
+[![Pages deployment](https://img.shields.io/github/actions/workflow/status/Soheil-Aghayani/ScholarPulse/pages.yml?branch=main&style=for-the-badge&label=Pages)](https://github.com/Soheil-Aghayani/ScholarPulse/actions/workflows/pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](LICENSE)
 
-**ScholarPulse** is a modern academic publication explorer and citation management platform. It allows researchers, students, and institutions to search scholars with typo-tolerant fuzzy matching, scrape Google Scholar profiles, resolve truncated paper titles (`...`) via CrossRef, generate citations across multiple styles (APA, IEEE, Harvard, MLA, BibTeX), analyze citation trajectories, and export clean publication lists directly to **Microsoft Word (.docx)**, **BibTeX (.bib)**, and **CSV**.
+ScholarPulse is a free academic research toolkit for finding scholars, loading Google Scholar profiles, cleaning publication metadata, formatting citations, and exporting research data. It runs in a browser, as an installable PWA, as a Windows desktop app, and as an Android APK.
 
----
+## Use ScholarPulse
 
-## 🌟 Live Demo
+| Edition | Best for | What it needs |
+| :--- | :--- | :--- |
+| [Web app](https://soheil-aghayani.github.io/ScholarPulse/) | Any modern browser | Nothing to install. The static edition uses OpenAlex for its browser-side fallback. |
+| [Hosted app](https://scholarpulse-hfew.onrender.com/) | Exact Scholar profile and publication requests | The free Render service. It may sleep when unused and Google Scholar may still rate-limit it. |
+| Windows release | A dedicated PC workspace | Download the Windows installer from [Releases](https://github.com/Soheil-Aghayani/ScholarPulse/releases/latest). |
+| Android release | ScholarPulse on a phone | Download and install the APK from [Releases](https://github.com/Soheil-Aghayani/ScholarPulse/releases/latest). |
 
-> 🌐 **Live Website**: [https://soheil-aghayani.github.io/ScholarPulse/](https://soheil-aghayani.github.io/ScholarPulse/)
+No account, paid API, or bank-card information is required by ScholarPulse. The hosted backend is optional and runs on Render’s free plan.
 
-ScholarPulse is architected to work **100% serverless in the browser** on GitHub Pages (querying global open academic registries directly via CORS) while also providing an optional high-performance local Python engine for Google Scholar scraping and native `.docx` generation.
+## What it does
 
----
+- Searches scholars by name, institution, or research field with typo-tolerant matching and common transliteration variants.
+- Imports the exact visible Google Scholar author-search results, including real profile photo URLs, with the ScholarPulse bookmarklet.
+- Loads Google Scholar publication profiles and keeps author metrics, citations, years, venues, and source links together.
+- Restores truncated publication titles when Crossref can verify a matching record.
+- Formats references as APA, IEEE, Harvard, MLA, Chicago, BibTeX, or a custom template.
+- Exports publication data as Microsoft Word, BibTeX, CSV, or JSON.
+- Saves scholars locally and compares up to three profiles without an account.
+- Includes a responsive PWA shell with light/dark themes and offline access to the app shell.
 
-## ✨ Key Features
+## Search accuracy and profile photos
 
-### 1. 🔍 Typo-Tolerant Scholar Search
-- Search scholars worldwide by name, institution, or research field.
-- **Room for Mistakes**: Built-in Levenshtein edit-distance and phonetic transliteration variant expansion (e.g., `Ali Molasalehi` ↔ `Ali Mollasalehi`, `Rodabeh` ↔ `Roudabeh`, `Naser` ↔ `Nasser`, `Hosein` ↔ `Hossein`).
-- Seamlessly falls back to client-side OpenAlex querying on static hosts like GitHub Pages.
+Google Scholar and OpenAlex are different data sources, so a browser-side fallback can return a different ranking, citation count, or photo. ScholarPulse labels the source instead of presenting those results as identical.
 
-### 2. 👤 High-Res Profile Pictures (No Initials)
-- Displays genuine scholar profile portraits from Google Scholar.
-- For all other global researchers, generates high-quality illustrated Notionist academic portraits—never showing boring plain letter initials.
+For the closest match to the Google Scholar page, use the hosted app or the exact-result importer:
 
-### 3. 🎯 Full Title Restoration (Zero `...`)
-- Resolves truncated titles and venues from Google Scholar using CrossRef API and clean regex heuristics.
-- Eliminates duplicate trailing periods, trailing dates `(2021)`, and ellipsis characters (`...` and `…`).
+1. Open the web app and choose **Open import guide** in the Search tab.
+2. Save the **ScholarPulse Import** link as a bookmark. On a phone, long-press it and choose the browser’s bookmark option.
+3. Search for authors on Google Scholar and open the author-search results page.
+4. Run the saved bookmark. ScholarPulse opens with the visible names, photos, affiliations, and citation counts.
 
-### 4. 📄 Multi-Format Citation & Document Export
-- **Microsoft Word (`.docx` / `.doc`)**: One-click download with professional typography (Calibri, hanging indent, styled headers). Works both via local Python engine and client-side browser builder.
-- **BibTeX (`.bib`)**: Formatted entries with clean citation keys, author names, venues, and years.
-- **CSV Spreadsheet (`.csv`)**: Full dataset with citations, DOI links, and publication years.
-- **JSON (`.json`)**: Portable profile, metrics, filters, and publication data for reuse or backup.
-- **Citation Styles**: Instant toggle between **APA 7th**, **IEEE**, **Harvard**, **MLA 9th**, and **Chicago**.
+The importer reads only the cards already visible in your browser. It does not use an API key, bypass a challenge, or scrape Google Scholar from the server. If Scholar itself shows its graduation-cap placeholder, that placeholder is retained because the profile has no public photo URL.
 
-### 5. 💾 Saved Scholars & Comparison
-- Save up to 20 scholars locally on the device—no account or database required.
-- Compare up to three loaded scholars side by side using papers, citations, h-index, i10-index, and source details.
-- Share a profile link or export the active profile as JSON for a portable backup.
+## Run locally
 
-### 6. 📊 Real-Time Bibliometrics & Analytics
-- Dynamic calculation of Total Papers, Total Citations, **h-index**, and **i10-index**.
-- Interactive publication trajectory charts by year and citation distribution breakdown.
+### Web and Python backend
 
-### 7. 📱 PWA & Offline Ready
-- Configured with `manifest.json` and service worker `sw.js`.
-- Responsive across desktop, tablet, and mobile devices with Dark / Light theme support.
+Prerequisites: Python 3.9 or newer. `python-docx` is installed from `requirements.txt` for Word export.
 
----
-
-## 🚀 Quick Start (Local Setup)
-
-### Prerequisites
-- Python 3.9+ (optional for local Google Scholar scraper & python-docx engine)
-
-### 1. Clone the Repository
 ```bash
 git clone https://github.com/Soheil-Aghayani/ScholarPulse.git
 cd ScholarPulse
-```
-
-### 2. Install Dependencies (Optional for native DOCX & scraping)
-```bash
-pip install python-docx
-```
-
-### 3. Run the Local Server
-```bash
+python -m pip install -r requirements.txt
 python server.py
 ```
-*Or double-click `start.bat` on Windows.*
 
-Open your browser at **`http://localhost:5000`**.
+Open `http://localhost:5000`. On Windows, `start.bat` starts the same server.
 
----
+### Native desktop development
 
-## 🌐 Deploying to GitHub Pages
+The Windows and Android editions use Tauri 2 around the same frontend. Install Node.js 20+, Rust, Python, and the platform WebView/Android tools first.
 
-1. Push your repository to GitHub:
-   ```bash
-   git remote add origin https://github.com/Soheil-Aghayani/ScholarPulse.git
-   git branch -M main
-   git push -u origin main
-   ```
-2. In your GitHub repository, go to **Settings** > **Pages** and set **Source** to **GitHub Actions**.
-3. The included `.github/workflows/pages.yml` publishes the site after each push. Within minutes, it will be accessible at:
-   **`https://soheil-aghayani.github.io/ScholarPulse/`**
+```bash
+npm install
+npm run native:dev
+```
 
-## 📱 Free backend for live phone use
+The native build creates a clean `dist/` bundle and points the app at the free hosted backend by default. Override it for a private or local backend with `SCHOLARPULSE_API_BASE` before running the native build.
 
-GitHub Pages can host the interface for free, but it cannot run `server.py`. For Google Scholar author-search results and live profile scraping from a phone, deploy the same repository as a free Render web service:
+```powershell
+$env:SCHOLARPULSE_API_BASE = 'https://your-backend.example.com'
+npm run native:build
+```
+
+## Free backend deployment
+
+GitHub Pages cannot run `server.py`, so the repository also includes a Render definition for the optional live backend:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Soheil-Aghayani/ScholarPulse)
 
-1. Open the button, sign in to Render, and keep the service on the **Free** plan.
-2. Wait for the first deployment to finish.
-3. Open the generated `*.onrender.com` address on the phone. That address serves both the website and the Python backend.
+1. Open the button and sign in to Render.
+2. Keep the service on the Free plan.
+3. Open the generated `*.onrender.com` URL on a phone or computer.
+4. Check `/api/health` to confirm the service returns `"ok": true`.
 
-You can confirm that the backend is awake by opening `https://YOUR-SERVICE.onrender.com/api/health` and checking for `"ok": true`.
+Render can sleep after inactivity, so the first request may take a little longer. Google Scholar can also block anonymous automated requests. When that happens, use the exact-result importer or the OpenAlex fallback.
 
-The app does not require an OpenAlex API key or a paid API key, and it never asks users for bank-card information. The free Render service can sleep after inactivity, so its first request may take a little time to wake up. Google Scholar can also challenge anonymous server requests; when that happens, ScholarPulse clearly labels the free OpenAlex fallback rather than pretending the lists are identical. See Render's [free instance documentation](https://render.com/docs/free) and [FAQ](https://render.com/docs/faq) for current account and plan conditions.
+## Native releases
 
-### Exact Scholar results and photos without a paid API
+The `native-release.yml` workflow publishes a Windows installer and Android artifacts when a tag such as `v1.0.0` is pushed:
 
-When Google Scholar blocks the hosted backend, use the **Open import guide** button in the Search tab. Save the ScholarPulse bookmarklet, open a Google Scholar author-search page, and run the bookmarklet. It sends the visible result cards to the free GitHub Pages interface through the URL fragment, preserving the names, profile photos, affiliations, and citation counts without an API key or payment.
+- Windows: NSIS `.exe` installer and MSI package.
+- Android: signed APK for direct installation and AAB for a future store pipeline.
 
----
+The first workflow run can generate a temporary Android signing key so the APK is installable without repository secrets. For seamless Android updates and Play Store publishing, configure a stable keystore through the repository secrets `ANDROID_KEY_BASE64`, `ANDROID_KEY_ALIAS`, and `ANDROID_KEY_PASSWORD`. The private keystore is never committed.
 
-## 📁 Project Structure
+To publish a release after making a verified change:
 
+```bash
+git add .
+git commit -m "release: ScholarPulse v1.0.0"
+git tag v1.0.0
+git push origin main --tags
 ```
+
+The GitHub Actions job creates the release and uploads the native artifacts. The Android job runs after the desktop job so all artifacts land on one release page.
+
+## Project structure
+
+```text
 ScholarPulse/
-├── index.html                  # Single-page web application (UI, charts, client search, exports)
-├── server.py                   # Lightweight Python backend (Scholar scraper, DOCX bridge, fuzzy API)
-├── requirements.txt            # Python dependency used by the hosted/local backend
-├── render.yaml                 # Free Render deployment definition
-├── start.bat                   # 1-click Windows launcher
-├── manifest.json               # Progressive Web App (PWA) manifest
-├── sw.js                       # Service Worker for offline capabilities
-├── scholar_8EUCPOUAAAAJ.json   # Pre-indexed publication dataset (Prof. Nasser Mehrdadi - 353 papers)
-├── scholar_bnprOf8AAAAJ.json   # Pre-indexed publication dataset
-├── scholar_u1PBvywAAAAJ.json   # Pre-indexed publication dataset (Prof. Yoshua Bengio)
-├── .gitignore                  # Clean repository ignore rules
-└── README.md                   # Project documentation
+├── index.html                  # Single-page interface and browser logic
+├── server.py                   # Optional Python backend and Word export bridge
+├── scripts/build-app.mjs       # Clean web/native asset bundle builder
+├── scripts/                    # Android release preparation helpers
+├── src-tauri/                  # Windows and Android Tauri shell
+├── icon.svg                    # Big Sur-inspired application mark
+├── manifest.json               # PWA metadata and install icons
+├── sw.js                       # Offline app-shell cache
+├── render.yaml                 # Free Render service definition
+└── .github/workflows/           # Pages and native release pipelines
 ```
 
----
+## Limitations
 
-## 📄 License
-This project is open-source under the [MIT License](LICENSE).
+- Google Scholar is an access-controlled public website. Results may be delayed, challenged, or unavailable from a hosted server.
+- Citation counts and author rankings are source-specific and can change over time.
+- OpenAlex, Crossref, Google Scholar, DiceBear, and Chart.js are external services used for specific features.
+- ScholarPulse is a research utility, not a citation database or a replacement for checking the source publication.
+
+## License
+
+ScholarPulse is open source under the [MIT License](LICENSE).

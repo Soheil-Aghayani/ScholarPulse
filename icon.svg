@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ScholarPulse app icon</title>
+  <desc id="desc">A glassy blue and violet research book with a rising citation line.</desc>
+  <defs>
+    <linearGradient id="bg" x1="120" y1="70" x2="890" y2="960" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#39a6ff"/>
+      <stop offset="0.42" stop-color="#4f72f3"/>
+      <stop offset="0.78" stop-color="#7655df"/>
+      <stop offset="1" stop-color="#c16be7"/>
+    </linearGradient>
+    <radialGradient id="cyanGlow" cx="0" cy="0" r="1" gradientTransform="translate(235 176) rotate(46) scale(470)">
+      <stop offset="0" stop-color="#b8f3ff" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#b8f3ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="violetGlow" cx="0" cy="0" r="1" gradientTransform="translate(815 846) rotate(-135) scale(480)">
+      <stop offset="0" stop-color="#f7c9ff" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#f7c9ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="190" y1="130" x2="840" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.42"/>
+      <stop offset="0.46" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="page" x1="260" y1="420" x2="758" y2="730" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#e9f2ff"/>
+      <stop offset="1" stop-color="#cdd9ff"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="280" y1="420" x2="760" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#173fbc"/>
+      <stop offset="0.55" stop-color="#284ec9"/>
+      <stop offset="1" stop-color="#6332b7"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="30" stdDeviation="24" flood-color="#17205d" flood-opacity="0.3"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#111b5e" flood-opacity="0.26"/>
+    </filter>
+  </defs>
+
+  <rect x="8" y="8" width="1008" height="1008" rx="232" fill="url(#bg)"/>
+  <rect x="8" y="8" width="1008" height="1008" rx="232" fill="url(#cyanGlow)"/>
+  <rect x="8" y="8" width="1008" height="1008" rx="232" fill="url(#violetGlow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="142" y="142" width="740" height="740" rx="192" fill="#162e86" fill-opacity="0.2"/>
+    <rect x="142" y="142" width="740" height="740" rx="192" fill="url(#glass)" stroke="#ffffff" stroke-opacity="0.35" stroke-width="5"/>
+    <path d="M190 342C290 184 520 142 735 207C808 229 850 272 872 319V205C872 170 844 142 809 142H215C175 142 142 174 142 215V418C151 392 167 366 190 342Z" fill="#ffffff" fill-opacity="0.16"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M264 406C337 364 424 371 512 418V720C425 673 336 667 264 708V406Z" fill="url(#page)"/>
+    <path d="M512 418C600 371 687 364 760 406V708C688 667 599 673 512 720V418Z" fill="url(#page)"/>
+    <path d="M512 418V720" stroke="#8ea4e4" stroke-width="9" stroke-linecap="round"/>
+    <path d="M289 451C351 420 419 425 477 454M289 503C351 472 419 477 477 506M289 555C351 524 419 529 477 558M547 454C605 425 673 420 735 451M547 506C605 477 673 472 735 503M547 558C605 529 673 524 735 555" fill="none" stroke="#7f9ee9" stroke-opacity="0.72" stroke-width="11" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <path d="M255 400C331 350 418 355 512 404C606 355 693 350 769 400" fill="none" stroke="#ffffff" stroke-opacity="0.92" stroke-width="18" stroke-linecap="round"/>
+    <path d="M270 393C331 350 417 353 512 404C607 353 693 350 754 393" fill="none" stroke="url(#ink)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M276 392L385 334L487 359L590 278L747 224" fill="none" stroke="#ffffff" stroke-opacity="0.96" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M276 392L385 334L487 359L590 278L747 224" fill="none" stroke="url(#ink)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="276" cy="392" r="19" fill="#ffffff"/>
+    <circle cx="276" cy="392" r="11" fill="#2449c6"/>
+    <circle cx="385" cy="334" r="19" fill="#ffffff"/>
+    <circle cx="385" cy="334" r="11" fill="#3153d1"/>
+    <circle cx="487" cy="359" r="19" fill="#ffffff"/>
+    <circle cx="487" cy="359" r="11" fill="#4147cf"/>
+    <circle cx="590" cy="278" r="19" fill="#ffffff"/>
+    <circle cx="590" cy="278" r="11" fill="#5a3bc1"/>
+    <circle cx="747" cy="224" r="22" fill="#ffffff"/>
+    <circle cx="747" cy="224" r="13" fill="#7931b4"/>
+  </g>
+
+  <path d="M213 804C371 876 648 883 814 783" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="13" stroke-linecap="round"/>
+  <rect x="8" y="8" width="1008" height="1008" rx="232" fill="none" stroke="#ffffff" stroke-opacity="0.24" stroke-width="10"/>
+</svg>

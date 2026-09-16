@@ -1,0 +1,19 @@
+[package]
+name = "scholarpulse"
+version = "1.0.0"
+description = "ScholarPulse — academic research and citation toolkit"
+authors = ["Soheil Aghayani"]
+license = "MIT"
+repository = "https://github.com/Soheil-Aghayani/ScholarPulse"
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+tauri = { version = "2.11.3", features = [] }

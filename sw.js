@@ -1,9 +1,12 @@
 // ScholarPulse Service Worker
-const CACHE_NAME = 'scholarpulse-v1';
+const CACHE_NAME = 'scholarpulse-v2';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon.svg',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
