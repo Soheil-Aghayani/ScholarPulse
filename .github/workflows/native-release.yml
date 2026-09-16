@@ -114,8 +114,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          apk=$(find src-tauri/gen/android -type f -path '*/outputs/apk/*release/*.apk' ! -name '*unsigned*' | sort | head -n 1)
-          aab=$(find src-tauri/gen/android -type f -path '*/outputs/bundle/*release/*.aab' | sort | head -n 1)
+            apk=$(find src-tauri/gen/android -type f -path '*/outputs/apk/*/*.apk' ! -name '*unsigned*' | sort | head -n 1)
+            aab=$(find src-tauri/gen/android -type f -path '*/outputs/bundle/*/*.aab' | sort | head -n 1)
           test -n "$apk"
           test -n "$aab"
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
