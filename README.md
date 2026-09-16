@@ -29,7 +29,8 @@ Word exports from the backend are real `.docx` files. If no backend is reachable
 - Formats references as APA, IEEE, Harvard, MLA, Chicago, BibTeX, or a custom template.
 - Exports publication data as Microsoft Word, BibTeX, CSV, or JSON.
 - Saves scholars locally and compares up to three profiles without an account.
-- Includes a responsive PWA shell with light/dark themes and offline access to the app shell.
+- Provides a research workspace with folders, tags, private notes, pinned publications, and local filters.
+- Includes a responsive installable PWA with light/dark themes, offline app-shell access, and caching for visited profile photos.
 
 ## Search accuracy and profile photos
 
@@ -90,7 +91,7 @@ Render can sleep after inactivity, so the first request may take a little longer
 
 ## Native releases
 
-The `native-release.yml` workflow publishes a Windows installer and Android artifacts when a tag such as `v1.0.2` is pushed. Keep the tag, package version, Tauri version, and Cargo version aligned:
+The `native-release.yml` workflow publishes a Windows installer and Android artifacts when a tag such as `v1.0.3` is pushed. Keep the tag, package version, Tauri version, and Cargo version aligned:
 
 - Windows: NSIS `.exe` installer and MSI package.
 - Android: signed APK for direct installation and AAB for a future store pipeline.
@@ -101,8 +102,8 @@ To publish a release after making a verified change:
 
 ```bash
 git add .
-git commit -m "release: ScholarPulse v1.0.2"
-git tag v1.0.2
+git commit -m "release: ScholarPulse v1.0.3"
+git tag v1.0.3
 git push origin main --tags
 ```
 

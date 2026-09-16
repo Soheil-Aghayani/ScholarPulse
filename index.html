@@ -128,6 +128,22 @@
       transition: background-color 0.3s ease, color 0.3s ease;
     }
 
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
     header {
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border-subtle);
@@ -196,6 +212,26 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
+    }
+
+    .network-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 0.7rem;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--amber);
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .install-app-btn {
+      color: var(--primary-text);
+      border-color: rgba(37, 99, 235, 0.35);
+      background: var(--primary-subtle);
     }
 
     .btn-icon {
@@ -721,6 +757,7 @@
     }
 
     .profile-action.is-saved,
+    .profile-action.is-pinned,
     .btn-compare-author.is-selected {
       color: var(--primary-text);
       border-color: var(--primary-light);
@@ -1457,6 +1494,17 @@
       .saved-scholar-actions {
         flex-direction: column;
       }
+      .workspace-controls,
+      .workspace-controls .form-input,
+      .workspace-controls select {
+        width: 100%;
+      }
+      .workspace-fields {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .workspace-field.workspace-field-notes {
+        grid-column: auto;
+      }
     }
 
     /* Analytics & DOI Styles */
@@ -1575,6 +1623,20 @@
       white-space: nowrap;
     }
 
+    .author-result-match {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      margin-bottom: 0.35rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius-full);
+      background: var(--primary-subtle);
+      color: var(--primary-text);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
     .author-search-toolbar {
       display: flex;
       align-items: center;
@@ -1630,6 +1692,62 @@
       margin-top: 0.25rem;
     }
 
+    .workspace-toolbar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.65rem;
+    }
+
+    .workspace-heading {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .workspace-heading strong {
+      color: var(--text-main);
+      font-size: 1rem;
+    }
+
+    .workspace-summary {
+      color: var(--text-subtle);
+      font-size: 0.78rem;
+    }
+
+    .workspace-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .workspace-controls .form-input,
+    .workspace-controls select {
+      min-height: 40px;
+      width: 190px;
+    }
+
+    .workspace-controls select,
+    .workspace-field select {
+      appearance: none;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 0.55rem 0.7rem;
+      font: inherit;
+      font-size: 0.8rem;
+    }
+
+    .workspace-hint {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      margin-bottom: 1rem;
+    }
+
     .saved-scholars-intro {
       color: var(--text-muted);
       font-size: 0.875rem;
@@ -1643,8 +1761,9 @@
     }
 
     .saved-scholar-card {
-      display: flex;
-      align-items: center;
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      align-items: start;
       gap: 0.8rem;
       padding: 0.9rem;
       border: 1px solid var(--border-subtle);
@@ -1670,7 +1789,6 @@
 
     .saved-scholar-info {
       min-width: 0;
-      flex: 1;
     }
 
     .saved-scholar-name {
@@ -1699,13 +1817,103 @@
     .saved-scholar-actions {
       display: flex;
       gap: 0.25rem;
-      flex-shrink: 0;
+      grid-column: 1 / -1;
+      justify-content: flex-end;
+      padding-top: 0.7rem;
+      border-top: 1px solid var(--border-subtle);
     }
 
     .saved-scholar-actions .btn-subtle {
       min-height: 40px;
       padding-left: 0.55rem;
       padding-right: 0.55rem;
+    }
+
+    .workspace-fields {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: minmax(120px, 0.7fr) minmax(150px, 1fr);
+      gap: 0.55rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .workspace-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    .workspace-field.workspace-field-notes {
+      grid-column: 1 / -1;
+    }
+
+    .workspace-field span {
+      color: var(--text-subtle);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .workspace-field input,
+    .workspace-field select,
+    .workspace-field textarea {
+      width: 100%;
+      min-height: 38px;
+      box-sizing: border-box;
+    }
+
+    .workspace-field input,
+    .workspace-field textarea {
+      resize: vertical;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 0.55rem 0.65rem;
+      font: inherit;
+      font-size: 0.8rem;
+    }
+
+    .workspace-field input:focus,
+    .workspace-field select:focus,
+    .workspace-field textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px var(--primary-subtle);
+    }
+
+    .workspace-pinned {
+      display: flex;
+      grid-column: 1 / -1;
+      flex-direction: column;
+      gap: 0.3rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .workspace-pinned strong {
+      color: var(--text-main);
+    }
+
+    .workspace-pinned-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: var(--text-subtle);
+    }
+
+    .workspace-pinned-list li {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-pin-paper.is-pinned {
+      color: var(--primary-text);
+      border-color: var(--primary-light);
+      background: var(--primary-subtle);
     }
 
     .compare-modal-card {
@@ -1880,6 +2088,14 @@
       </a>
 
       <div class="nav-actions">
+        <span class="network-status" id="networkStatus" role="status" aria-live="polite" hidden>Offline mode</span>
+        <button class="btn-icon install-app-btn" id="btnInstallApp" type="button" title="Install ScholarPulse" aria-label="Install ScholarPulse" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v12"/>
+            <path d="m7 10 5 5 5-5"/>
+            <path d="M5 21h14"/>
+          </svg>
+        </button>
         <button class="btn-icon" id="btnHelp" title="Extractor Instructions & Bookmarklet">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
@@ -2046,7 +2262,21 @@
       <!-- Tab 4: Saved Scholars (device-only, no account required) -->
       <div class="tab-content" id="tab-saved">
         <div class="saved-scholars-panel">
-          <p class="saved-scholars-intro">Your saved profiles stay on this device. No account, database, or paid service is required.</p>
+          <div class="workspace-toolbar">
+            <div class="workspace-heading">
+              <strong>Research workspace</strong>
+              <span class="workspace-summary" id="workspaceSummary">No saved scholars yet</span>
+            </div>
+            <div class="workspace-controls">
+              <label class="sr-only" for="workspaceSearchInput">Filter workspace</label>
+              <input id="workspaceSearchInput" class="form-input" type="search" placeholder="Filter scholars, tags, or notes">
+              <label class="sr-only" for="workspaceFolderFilter">Filter by folder</label>
+              <select id="workspaceFolderFilter">
+                <option value="all">All folders</option>
+              </select>
+            </div>
+          </div>
+          <p class="workspace-hint">Saved profiles, folders, tags, notes, and pinned publications stay on this device. No account, database, or paid service is required.</p>
           <div class="saved-scholars-list" id="savedScholarsList"></div>
         </div>
       </div>
@@ -2098,6 +2328,10 @@
           <button class="btn-secondary profile-action" id="btnSaveScholar" type="button" aria-pressed="false">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
             Save Scholar
+          </button>
+          <button class="btn-secondary profile-action" id="btnPinFilteredPapers" type="button" title="Save the visible publications to your research workspace">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Pin visible papers
           </button>
           <button class="btn-secondary profile-action" id="btnCompareCurrent" type="button" aria-pressed="false">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M8 12h8"/></svg>
@@ -2499,7 +2733,10 @@
       abortController: null,
       savedScholars: [],
       compareScholars: [],
-      lastAuthorResults: []
+      lastAuthorResults: [],
+      workspaceQuery: '',
+      workspaceFolder: 'all',
+      deferredInstallPrompt: null
     };
 
     /* Datasets */
@@ -2600,6 +2837,7 @@
       authorInterests: document.getElementById('authorInterests'),
       authorScholarLink: document.getElementById('authorScholarLink'),
       btnSaveScholar: document.getElementById('btnSaveScholar'),
+      btnPinFilteredPapers: document.getElementById('btnPinFilteredPapers'),
       btnCompareCurrent: document.getElementById('btnCompareCurrent'),
       btnCopyProfileLink: document.getElementById('btnCopyProfileLink'),
       
@@ -2662,6 +2900,8 @@
       
       toast: document.getElementById('toastMessage'),
       toastText: document.getElementById('toastText'),
+      networkStatus: document.getElementById('networkStatus'),
+      btnInstallApp: document.getElementById('btnInstallApp'),
       btnTheme: document.getElementById('btnTheme'),
       themeIconDark: document.getElementById('themeIconDark'),
       themeIconLight: document.getElementById('themeIconLight'),
@@ -2677,6 +2917,9 @@
       compareSelectionCount: document.getElementById('compareSelectionCount'),
       btnCompareSelected: document.getElementById('btnCompareSelected'),
       savedCountBadge: document.getElementById('savedCountBadge'),
+      workspaceSummary: document.getElementById('workspaceSummary'),
+      workspaceSearchInput: document.getElementById('workspaceSearchInput'),
+      workspaceFolderFilter: document.getElementById('workspaceFolderFilter'),
       savedScholarsList: document.getElementById('savedScholarsList'),
       compareModal: document.getElementById('compareModal'),
       compareContent: document.getElementById('compareContent'),
@@ -3115,9 +3358,12 @@
     function render() {
       const papers = state.filteredPapers;
       const isBibtex = state.activeStyle === 'bibtex';
+      const currentRecord = state.author ? getSavedRecordForAuthor(state.author) : null;
+      const pinnedPaperIds = new Set(currentRecord?.pinnedPaperIds || []);
 
       dom.filteredCount.innerText = papers.length.toLocaleString();
       dom.totalCount.innerText = state.rawPapers.length.toLocaleString();
+      updateProfileActionButtons();
 
       if (papers.length === 0) {
         dom.papersCardView.innerHTML = `
@@ -3135,6 +3381,8 @@
       let cardsHtml = '';
       papers.forEach((paper, idx) => {
         const indexNum = idx + 1;
+        const paperKey = getPaperKey(paper);
+        const isPaperPinned = pinnedPaperIds.has(paperKey);
         const formattedCitation = formatCitation(paper, indexNum, state.activeStyle);
         const citationStyleClass = isBibtex ? 'font-family: var(--font-mono); font-size: 0.8rem; white-space: pre-wrap;' : '';
         const doiBadge = paper.doi 
@@ -3168,6 +3416,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 Copy
               </button>
+              <button class="btn-action btnPinPaper${isPaperPinned ? ' is-pinned' : ''}" data-id="${escapeHtml(paperKey)}" aria-pressed="${isPaperPinned}" title="${isPaperPinned ? 'Unpin publication' : 'Pin publication'}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2 2z"/></svg>
+                ${isPaperPinned ? 'Pinned' : 'Pin'}
+              </button>
             </div>
           </div>
         `;
@@ -3177,6 +3429,8 @@
       let tableHtml = '';
       papers.forEach((paper, idx) => {
         const indexNum = idx + 1;
+        const paperKey = getPaperKey(paper);
+        const isPaperPinned = pinnedPaperIds.has(paperKey);
         tableHtml += `
           <tr>
             <td style="color: var(--text-subtle); font-family: var(--font-mono);">${indexNum}</td>
@@ -3193,6 +3447,10 @@
                 <button class="btn-action btnCopyItem" data-id="${paper.id}" title="Copy citation">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   Copy
+                </button>
+                <button class="btn-action btnPinPaper${isPaperPinned ? ' is-pinned' : ''}" data-id="${escapeHtml(paperKey)}" aria-pressed="${isPaperPinned}" title="${isPaperPinned ? 'Unpin publication' : 'Pin publication'}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2 2z"/></svg>
+                  ${isPaperPinned ? 'Pinned' : 'Pin'}
                 </button>
                 <a href="${paper.link}" target="_blank" class="btn-action" title="Open Link" style="text-decoration:none; display: inline-flex; align-items: center; justify-content: center;">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -3219,6 +3477,10 @@
           }
         };
       });
+
+      document.querySelectorAll('.btnPinPaper').forEach(btn => {
+        btn.onclick = () => updatePinnedPapers([btn.getAttribute('data-id')]);
+      });
     }
 
     function copyToClipboard(text) {
@@ -3240,6 +3502,51 @@
       dom.toastText.innerText = msg;
       dom.toast.classList.add('show');
       setTimeout(() => dom.toast.classList.remove('show'), 2500);
+    }
+
+    function updateNetworkStatus() {
+      if (!dom.networkStatus) return;
+      const isOffline = navigator.onLine === false;
+      dom.networkStatus.hidden = !isOffline;
+      dom.networkStatus.textContent = isOffline ? 'Offline mode' : '';
+    }
+
+    function setupPwa() {
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+      updateNetworkStatus();
+
+      if (dom.btnInstallApp) {
+        window.addEventListener('beforeinstallprompt', (event) => {
+          event.preventDefault();
+          state.deferredInstallPrompt = event;
+          dom.btnInstallApp.hidden = false;
+        });
+
+        dom.btnInstallApp.addEventListener('click', async () => {
+          if (!state.deferredInstallPrompt) return;
+          const installPrompt = state.deferredInstallPrompt;
+          state.deferredInstallPrompt = null;
+          dom.btnInstallApp.hidden = true;
+          await installPrompt.prompt();
+          await installPrompt.userChoice;
+        });
+
+        window.addEventListener('appinstalled', () => {
+          state.deferredInstallPrompt = null;
+          dom.btnInstallApp.hidden = true;
+          showToast('ScholarPulse was added to your apps.');
+        });
+      }
+
+      if (window.SCHOLARPULSE_NATIVE === true) return;
+      const canRegisterServiceWorker = 'serviceWorker' in navigator
+        && (window.location.protocol === 'https:' || ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname));
+      if (!canRegisterServiceWorker) return;
+
+      navigator.serviceWorker.register('./sw.js')
+        .then(registration => registration.update())
+        .catch(error => console.warn('ScholarPulse offline mode could not start:', error));
     }
 
     function escapeHtml(str) {
@@ -3372,12 +3679,42 @@
       };
     }
 
+    const DEFAULT_WORKSPACE_FOLDERS = ['General', 'Reading', 'Writing', 'Review', 'Teaching'];
+
+    function normalizeWorkspaceTags(value) {
+      const values = Array.isArray(value) ? value : String(value || '').split(',');
+      return [...new Set(values
+        .map(tag => String(tag || '').trim())
+        .filter(Boolean)
+        .slice(0, 12))];
+    }
+
+    function normalizeWorkspaceRecord(record) {
+      if (!record || !record.author || !record.author.name) return null;
+      const papers = Array.isArray(record.papers) ? record.papers.map(clonePaperForStorage) : [];
+      const pinnedPaperIds = Array.isArray(record.pinnedPaperIds)
+        ? [...new Set(record.pinnedPaperIds.map(id => String(id || '')).filter(Boolean))]
+        : [];
+      return {
+        ...record,
+        key: getSavedRecordKey(record),
+        author: { ...record.author },
+        papers,
+        savedAt: Number.isFinite(Number(record.savedAt)) ? Number(record.savedAt) : Date.now(),
+        folder: String(record.folder || 'General').trim() || 'General',
+        tags: normalizeWorkspaceTags(record.tags),
+        notes: String(record.notes || '').trim(),
+        pinnedPaperIds
+      };
+    }
+
     function loadSavedScholars() {
       try {
         const saved = JSON.parse(localStorage.getItem(SAVED_SCHOLARS_STORAGE_KEY) || '[]');
         if (!Array.isArray(saved)) return [];
         return saved
-          .filter(record => record && record.author && record.author.name)
+          .map(normalizeWorkspaceRecord)
+          .filter(Boolean)
           .slice(0, MAX_SAVED_SCHOLARS);
       } catch (error) {
         return [];
@@ -3391,6 +3728,75 @@
       } catch (error) {
         return false;
       }
+    }
+
+    function getPaperKey(paper) {
+      if (paper?.id) return String(paper.id);
+      const fallback = [paper?.title, paper?.year, paper?.link].filter(Boolean).join('|');
+      return fallback || 'paper:unknown';
+    }
+
+    function getSavedRecordForAuthor(author) {
+      const key = getAuthorKey(author);
+      return key ? state.savedScholars.find(record => getSavedRecordKey(record) === key) : null;
+    }
+
+    function getWorkspaceFolders() {
+      return [...new Set([
+        ...DEFAULT_WORKSPACE_FOLDERS,
+        ...state.savedScholars.map(record => String(record.folder || '').trim()).filter(Boolean)
+      ])];
+    }
+
+    function getFilteredWorkspaceRecords() {
+      const normalizedQuery = normalizeSearchText(state.workspaceQuery);
+      return state.savedScholars.filter(record => {
+        const folderMatches = state.workspaceFolder === 'all' || record.folder === state.workspaceFolder;
+        if (!folderMatches) return false;
+        if (!normalizedQuery) return true;
+        const searchable = [
+          record.author?.name,
+          record.author?.affiliation,
+          record.folder,
+          ...(record.tags || []),
+          record.notes
+        ].join(' ');
+        return normalizeSearchText(searchable).includes(normalizedQuery);
+      });
+    }
+
+    function updateWorkspaceSummary() {
+      if (!dom.workspaceSummary) return;
+      const filteredRecords = getFilteredWorkspaceRecords();
+      const pinnedCount = filteredRecords.reduce((total, record) => total + (record.pinnedPaperIds || []).length, 0);
+      const scholarLabel = filteredRecords.length === 1 ? 'scholar' : 'scholars';
+      const paperLabel = pinnedCount === 1 ? 'pinned publication' : 'pinned publications';
+      dom.workspaceSummary.innerText = `${filteredRecords.length} ${scholarLabel} · ${pinnedCount} ${paperLabel}`;
+    }
+
+    function renderWorkspaceFolderFilter() {
+      if (!dom.workspaceFolderFilter) return;
+      const folders = getWorkspaceFolders();
+      const options = ['<option value="all">All folders</option>']
+        .concat(folders.map(folder => `<option value="${escapeHtml(folder)}">${escapeHtml(folder)}</option>`));
+      dom.workspaceFolderFilter.innerHTML = options.join('');
+      if (!folders.includes(state.workspaceFolder)) state.workspaceFolder = 'all';
+      dom.workspaceFolderFilter.value = state.workspaceFolder;
+    }
+
+    function updateWorkspaceRecord(key, patch, rerender = false) {
+      const record = state.savedScholars.find(item => getSavedRecordKey(item) === key);
+      if (!record) return;
+      const previous = { ...record };
+      Object.assign(record, patch);
+      if (!persistSavedScholars()) {
+        Object.assign(record, previous);
+        showToast('Could not update the research workspace on this device.');
+        return;
+      }
+      if (rerender) renderSavedScholars();
+      else updateWorkspaceSummary();
+      updateProfileActionButtons();
     }
 
     function computeHIndex(papers) {
@@ -3471,6 +3877,21 @@
 
     function updateProfileActionButtons() {
       updateSaveButton();
+      if (dom.btnPinFilteredPapers) {
+        const record = state.author ? getSavedRecordForAuthor(state.author) : null;
+        const visiblePaperIds = (state.filteredPapers || []).map(getPaperKey);
+        const pinnedPaperIds = new Set(record?.pinnedPaperIds || []);
+        const allVisiblePinned = visiblePaperIds.length > 0 && visiblePaperIds.every(id => pinnedPaperIds.has(id));
+        dom.btnPinFilteredPapers.disabled = !state.author || visiblePaperIds.length === 0;
+        dom.btnPinFilteredPapers.classList.toggle('is-pinned', allVisiblePinned);
+        dom.btnPinFilteredPapers.setAttribute('aria-pressed', String(allVisiblePinned));
+        dom.btnPinFilteredPapers.title = record
+          ? 'Save or remove the currently visible publications from your research workspace'
+          : 'Save this scholar first to use the research workspace';
+        dom.btnPinFilteredPapers.innerHTML = allVisiblePinned
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Unpin visible papers'
+          : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2 2h10a2 2 0 0 1 2 2z"/></svg> Pin visible papers';
+      }
       if (!dom.btnCompareCurrent) return;
       const compared = Boolean(state.author && isScholarCompared(state.author));
       dom.btnCompareCurrent.classList.toggle('is-saved', compared);
@@ -3478,6 +3899,41 @@
       dom.btnCompareCurrent.innerHTML = compared
         ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Compared'
         : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 1 2-2v-3"/><path d="M8 12h8"/></svg> Compare';
+    }
+
+    function updatePinnedPapers(paperIds) {
+      if (!state.author) return;
+      const record = getSavedRecordForAuthor(state.author);
+      if (!record) {
+        showToast('Save this scholar first to add workspace notes or pinned publications.');
+        return;
+      }
+
+      const ids = [...new Set((paperIds || []).map(id => String(id || '')).filter(Boolean))];
+      if (!ids.length) {
+        showToast('There are no visible publications to pin.');
+        return;
+      }
+
+      const pinned = new Set(record.pinnedPaperIds || []);
+      const shouldUnpin = ids.every(id => pinned.has(id));
+      ids.forEach(id => shouldUnpin ? pinned.delete(id) : pinned.add(id));
+      const previous = record.pinnedPaperIds;
+      record.pinnedPaperIds = [...pinned];
+      if (!persistSavedScholars()) {
+        record.pinnedPaperIds = previous;
+        showToast('Could not update pinned publications on this device.');
+        return;
+      }
+
+      render();
+      renderSavedScholars();
+      updateProfileActionButtons();
+      showToast(shouldUnpin ? 'Publications unpinned from the workspace.' : 'Publications pinned to the workspace.');
+    }
+
+    function pinVisiblePapers() {
+      updatePinnedPapers((state.filteredPapers || []).map(getPaperKey));
     }
 
     function saveCurrentScholar() {
@@ -3503,7 +3959,11 @@
           key,
           author: { ...state.author },
           papers: (state.rawPapers || []).slice(0, 500).map(clonePaperForStorage),
-          savedAt: Date.now()
+          savedAt: Date.now(),
+          folder: 'General',
+          tags: [],
+          notes: '',
+          pinnedPaperIds: []
         };
         state.savedScholars = [record, ...state.savedScholars].slice(0, MAX_SAVED_SCHOLARS);
         if (!persistSavedScholars()) {
@@ -3522,6 +3982,9 @@
       updateSavedCount();
       if (!dom.savedScholarsList) return;
 
+      renderWorkspaceFolderFilter();
+      updateWorkspaceSummary();
+
       if (state.savedScholars.length === 0) {
         dom.savedScholarsList.innerHTML = `
           <div class="empty-state" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
@@ -3533,7 +3996,19 @@
         return;
       }
 
-      dom.savedScholarsList.innerHTML = state.savedScholars.map(record => {
+      const records = getFilteredWorkspaceRecords();
+      if (records.length === 0) {
+        dom.savedScholarsList.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
+            <h3>No workspace matches</h3>
+            <p>Try another scholar, tag, note, or folder.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const folders = getWorkspaceFolders();
+      dom.savedScholarsList.innerHTML = records.map(record => {
         const author = record.author || {};
         const papers = Array.isArray(record.papers) ? record.papers : [];
         const metrics = getProfileMetrics(author, papers);
@@ -3545,6 +4020,11 @@
           ? new Date(record.savedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
           : 'Saved locally';
         const key = getSavedRecordKey(record);
+        const pinnedIds = new Set(record.pinnedPaperIds || []);
+        const pinnedPapers = papers.filter(paper => pinnedIds.has(getPaperKey(paper)));
+        const pinnedLabel = pinnedPapers.length === 1 ? '1 pinned publication' : `${pinnedPapers.length} pinned publications`;
+        const pinnedList = pinnedPapers.slice(0, 3).map(paper => `<li title="${escapeHtml(paper.title || 'Untitled publication')}">${escapeHtml(paper.title || 'Untitled publication')}</li>`).join('');
+        const folderOptions = folders.map(folder => `<option value="${escapeHtml(folder)}"${folder === record.folder ? ' selected' : ''}>${escapeHtml(folder)}</option>`).join('');
 
         return `
           <article class="saved-scholar-card" data-key="${escapeHtml(key)}">
@@ -3554,41 +4034,85 @@
               <div class="saved-scholar-affiliation" title="${escapeHtml(author.affiliation || '')}">${escapeHtml(author.affiliation || 'Academic Researcher')}</div>
               <div class="saved-scholar-meta">${escapeHtml(meta)} · ${escapeHtml(savedDate)}</div>
             </div>
+            <div class="workspace-fields">
+              <label class="workspace-field">
+                <span>Folder</span>
+                <select class="workspace-folder-input" data-key="${escapeHtml(key)}" aria-label="Folder for ${escapeHtml(author.name)}">
+                  ${folderOptions}
+                </select>
+              </label>
+              <label class="workspace-field">
+                <span>Tags</span>
+                <input class="workspace-tags-input" type="text" value="${escapeHtml((record.tags || []).join(', '))}" data-key="${escapeHtml(key)}" placeholder="climate, review, shortlist" aria-label="Tags for ${escapeHtml(author.name)}">
+              </label>
+              <label class="workspace-field workspace-field-notes">
+                <span>Notes</span>
+                <textarea class="workspace-notes-input" rows="2" data-key="${escapeHtml(key)}" placeholder="Add a private research note" aria-label="Notes for ${escapeHtml(author.name)}">${escapeHtml(record.notes || '')}</textarea>
+              </label>
+              <div class="workspace-pinned">
+                <strong>${escapeHtml(pinnedLabel)}</strong>
+                ${pinnedList ? `<ul class="workspace-pinned-list">${pinnedList}</ul>` : '<span>Use “Pin visible papers” on a loaded profile to keep key publications here.</span>'}
+              </div>
+            </div>
             <div class="saved-scholar-actions">
               <button class="btn-subtle btn-load-saved" type="button" data-key="${escapeHtml(key)}">Load</button>
+              ${pinnedPapers.length ? `<button class="btn-subtle btn-unpin-saved" type="button" data-key="${escapeHtml(key)}">Unpin all</button>` : ''}
               <button class="btn-subtle btn-remove-saved" type="button" data-key="${escapeHtml(key)}" aria-label="Remove ${escapeHtml(author.name)} from saved scholars">Remove</button>
             </div>
           </article>
         `;
       }).join('');
 
-      dom.savedScholarsList.querySelectorAll('.btn-load-saved').forEach(button => {
-        button.addEventListener('click', () => {
+      if (!dom.savedScholarsList.dataset.workspaceBound) {
+        dom.savedScholarsList.addEventListener('click', (event) => {
+          const button = event.target.closest('button[data-key]');
+          if (!button) return;
           const key = button.getAttribute('data-key');
           const record = state.savedScholars.find(item => getSavedRecordKey(item) === key);
           if (!record) return;
-          setDataset(record.author, Array.isArray(record.papers) ? record.papers : []);
-          showToast(`Loaded ${record.author.name}.`);
-          dom.authorCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
 
-      dom.savedScholarsList.querySelectorAll('.btn-remove-saved').forEach(button => {
-        button.addEventListener('click', () => {
-          const key = button.getAttribute('data-key');
-          const record = state.savedScholars.find(item => getSavedRecordKey(item) === key);
-          const previous = state.savedScholars;
-          state.savedScholars = state.savedScholars.filter(item => getSavedRecordKey(item) !== key);
-          if (!persistSavedScholars()) {
-            state.savedScholars = previous;
-            showToast('Could not update saved scholars on this device.');
+          if (button.classList.contains('btn-load-saved')) {
+            setDataset(record.author, Array.isArray(record.papers) ? record.papers : []);
+            showToast(`Loaded ${record.author.name}.`);
+            dom.authorCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
           }
-          renderSavedScholars();
-          updateProfileActionButtons();
-          if (record) showToast(`${record.author.name} removed from saved scholars.`);
+
+          if (button.classList.contains('btn-unpin-saved')) {
+            updateWorkspaceRecord(key, { pinnedPaperIds: [] }, true);
+            showToast('Pinned publications cleared for this scholar.');
+            return;
+          }
+
+          if (button.classList.contains('btn-remove-saved')) {
+            const previous = state.savedScholars;
+            state.savedScholars = state.savedScholars.filter(item => getSavedRecordKey(item) !== key);
+            if (!persistSavedScholars()) {
+              state.savedScholars = previous;
+              showToast('Could not update saved scholars on this device.');
+              return;
+            }
+            renderSavedScholars();
+            updateProfileActionButtons();
+            showToast(`${record.author.name} removed from saved scholars.`);
+          }
         });
-      });
+
+        dom.savedScholarsList.addEventListener('change', (event) => {
+          const field = event.target;
+          const key = field.getAttribute('data-key');
+          if (!key) return;
+          if (field.classList.contains('workspace-folder-input')) {
+            updateWorkspaceRecord(key, { folder: field.value.trim() || 'General' }, true);
+          } else if (field.classList.contains('workspace-tags-input')) {
+            updateWorkspaceRecord(key, { tags: normalizeWorkspaceTags(field.value) });
+          } else if (field.classList.contains('workspace-notes-input')) {
+            updateWorkspaceRecord(key, { notes: field.value.trim() });
+          }
+        });
+
+        dom.savedScholarsList.dataset.workspaceBound = 'true';
+      }
     }
 
     function updateCompareSelectionUI() {
@@ -3764,6 +4288,7 @@
       });
 
       dom.btnSaveScholar.addEventListener('click', saveCurrentScholar);
+      dom.btnPinFilteredPapers?.addEventListener('click', pinVisiblePapers);
       dom.btnCompareCurrent.addEventListener('click', toggleCompareCurrent);
       dom.btnCopyProfileLink.addEventListener('click', () => {
         const profileLink = state.author?.scholarLink || state.author?.link;
@@ -3778,6 +4303,16 @@
       dom.btnCloseCompare.addEventListener('click', closeCompareModal);
       dom.compareModal.addEventListener('click', (event) => {
         if (event.target === dom.compareModal) closeCompareModal();
+      });
+
+      dom.workspaceSearchInput?.addEventListener('input', (event) => {
+        state.workspaceQuery = event.target.value;
+        renderSavedScholars();
+      });
+
+      dom.workspaceFolderFilter?.addEventListener('change', (event) => {
+        state.workspaceFolder = event.target.value;
+        renderSavedScholars();
       });
 
       document.querySelectorAll('.chip').forEach(chip => {
@@ -4547,20 +5082,28 @@
       const normalizedQuery = normalizeSearchText(query);
       const normalizedName = normalizeSearchText(profile?.name);
       const normalizedAffiliation = normalizeSearchText(profile?.affiliation);
+      const normalizedInterests = normalizeSearchText(Array.isArray(profile?.interests) ? profile.interests.join(' ') : profile?.interests);
       if (!normalizedQuery || !normalizedName) return 0;
 
       if (normalizedName === normalizedQuery) return 1;
       if (normalizedName.includes(normalizedQuery)) return 0.98;
       if (normalizedAffiliation.includes(normalizedQuery)) return 0.82;
+      if (normalizedInterests.includes(normalizedQuery)) return 0.78;
 
       const queryTokens = searchTokens(query);
       const nameTokens = searchTokens(profile.name);
       const affiliationTokens = searchTokens(profile.affiliation);
+      const interestTokens = searchTokens(normalizedInterests);
       if (queryTokens.length === 0) return 0;
 
       const nameScores = queryTokens.map(token => bestTokenSimilarity(token, nameTokens));
       const affiliationScores = queryTokens.map(token => bestTokenSimilarity(token, affiliationTokens));
-      const combinedScores = queryTokens.map((_, index) => Math.max(nameScores[index], affiliationScores[index] * 0.88));
+      const interestScores = queryTokens.map(token => bestTokenSimilarity(token, interestTokens));
+      const combinedScores = queryTokens.map((_, index) => Math.max(
+        nameScores[index],
+        affiliationScores[index] * 0.88,
+        interestScores[index] * 0.82
+      ));
       const minimumScore = queryTokens.length === 1 ? 0.58 : 0.52;
       if (combinedScores.some(score => score < minimumScore)) return 0;
 
@@ -4633,6 +5176,49 @@
       });
 
       return Array.from(variants).slice(0, 24);
+    }
+
+    function getAuthorMatchDetails(query, profile) {
+      const normalizedQuery = normalizeSearchText(query);
+      const normalizedName = normalizeSearchText(profile?.name);
+      const normalizedAffiliation = normalizeSearchText(profile?.affiliation);
+      const normalizedInterests = normalizeSearchText(Array.isArray(profile?.interests) ? profile.interests.join(' ') : profile?.interests);
+      const score = Math.max(Number(profile?.match_score) || 0, authorMatchScore(query, profile));
+
+      let label = 'Related result';
+      if (normalizedName && normalizedName === normalizedQuery) label = 'Exact name match';
+      else if (normalizedName && normalizedName.includes(normalizedQuery)) label = 'Name match';
+      else if (score >= 0.78) label = 'Close name match';
+      else if (normalizedAffiliation.includes(normalizedQuery) || normalizedInterests.includes(normalizedQuery)) label = 'Institution or field match';
+
+      return { score, label };
+    }
+
+    function rankAuthorMatches(authors, query) {
+      const deduplicated = new Map();
+      (authors || []).forEach(author => {
+        if (!author?.id || !author?.name) return;
+        const details = getAuthorMatchDetails(query, author);
+        const existing = deduplicated.get(String(author.id))
+          || [...deduplicated.values()].find(item => normalizeSearchText(item.name) === normalizeSearchText(author.name));
+        if (existing) {
+          if (details.score > existing.match_score) {
+            existing.match_score = details.score;
+            existing.match_label = details.label;
+          }
+          if (!existing.avatar && author.avatar) existing.avatar = author.avatar;
+          return;
+        }
+        deduplicated.set(String(author.id), { ...author, match_score: details.score, match_label: details.label });
+      });
+
+      return [...deduplicated.values()]
+        .sort((a, b) => (
+          (b.match_score - a.match_score)
+          || (String(b.source || '').includes('scholar') ? 1 : 0) - (String(a.source || '').includes('scholar') ? 1 : 0)
+          || ((b.citations || 0) - (a.citations || 0))
+        ))
+        .slice(0, 12);
     }
 
     const CLIENT_PRESETS = [
@@ -4769,9 +5355,7 @@
         }
       }
 
-      return results
-        .sort((a, b) => (b.match_score - a.match_score) || ((b.citations || 0) - (a.citations || 0)))
-        .slice(0, 8);
+      return rankAuthorMatches(results, query).slice(0, 8);
     }
 
     function initAuthorSearch() {
@@ -4818,7 +5402,7 @@
           foundResults = await searchAuthorsClientSide(query);
         }
 
-        renderAuthorSearchResults(foundResults || [], query, searchNotice);
+        renderAuthorSearchResults(rankAuthorMatches(foundResults || [], query), query, searchNotice);
       };
 
       dom.btnSearchAuthor.addEventListener('click', () => triggerSearch());
@@ -4856,6 +5440,7 @@
         : '';
       authors.forEach(a => {
         const avatarHtml = buildAvatarImage(a);
+        const matchDetails = getAuthorMatchDetails(query, a);
         const hasPaperCount = a.works_count !== null && a.works_count !== undefined;
         const hasCitationCount = a.citations !== null && a.citations !== undefined;
         const statsHtml = [
@@ -4871,6 +5456,7 @@
               ${avatarHtml}
             </div>
             <div class="author-result-info">
+              <div class="author-result-match">${escapeHtml(a.match_label || matchDetails.label)}</div>
               <div class="author-result-name">${escapeHtml(a.name)}</div>
               <div class="author-result-affil" title="${escapeHtml(a.affiliation || '')}">${escapeHtml(a.affiliation || 'Academic Researcher')}</div>
               <div class="author-result-stats">
@@ -5008,6 +5594,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initEventHandlers();
+      setupPwa();
       state.savedScholars = loadSavedScholars();
       renderSavedScholars();
       updateCompareSelectionUI();
