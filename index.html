@@ -4017,7 +4017,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
-                signal: AbortSignal.timeout(20000)
+                // Render's free instance can take 50 seconds or more to wake.
+                signal: AbortSignal.timeout(75000)
               });
               if (res.ok) {
                 const docxBlob = await res.blob();
