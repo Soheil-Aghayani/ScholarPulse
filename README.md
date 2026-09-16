@@ -90,7 +90,7 @@ Render can sleep after inactivity, so the first request may take a little longer
 
 ## Native releases
 
-The `native-release.yml` workflow publishes a Windows installer and Android artifacts when a tag such as `v1.0.1` is pushed. Keep the tag, package version, Tauri version, and Cargo version aligned:
+The `native-release.yml` workflow publishes a Windows installer and Android artifacts when a tag such as `v1.0.2` is pushed. Keep the tag, package version, Tauri version, and Cargo version aligned:
 
 - Windows: NSIS `.exe` installer and MSI package.
 - Android: signed APK for direct installation and AAB for a future store pipeline.
@@ -101,8 +101,8 @@ To publish a release after making a verified change:
 
 ```bash
 git add .
-git commit -m "release: ScholarPulse v1.0.1"
-git tag v1.0.1
+git commit -m "release: ScholarPulse v1.0.2"
+git tag v1.0.2
 git push origin main --tags
 ```
 
