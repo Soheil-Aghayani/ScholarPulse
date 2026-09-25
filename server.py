@@ -525,7 +525,7 @@ def parse_scholar_author_results(content):
             'works_count': None,
             'citations': citations,
             'h_index': None,
-            'citation_label': 'cited by',
+            'citation_label': 'Google Scholar citations',
             'avatar': avatar or None,
             'scholarLink': profile_url or f'{SCHOLAR_BASE_URL}/citations?user={user_id}',
             'source': 'scholar',
@@ -889,7 +889,8 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
             if scholar_blocked:
                 response["notice"] = (
                     "Google Scholar author search was unavailable from this server; "
-                    "showing free OpenAlex alternatives."
+                    "showing OpenAlex alternatives. Citation and h-index values "
+                    "below are OpenAlex metrics and can differ from Google Scholar."
                 )
             self.wfile.write(json.dumps(response, ensure_ascii=False).encode('utf-8'))
             return

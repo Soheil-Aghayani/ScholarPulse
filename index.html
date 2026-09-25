@@ -1637,6 +1637,43 @@
       letter-spacing: 0.01em;
     }
 
+    .author-result-match-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .author-result-match-row .author-result-match {
+      margin-bottom: 0;
+    }
+
+    .author-result-source {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.14rem 0.42rem;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      color: var(--text-muted);
+      background: var(--bg-muted);
+      font-size: 0.64rem;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .author-result-card[data-source*="openalex"] .author-result-source {
+      color: #0f7ea8;
+      border-color: rgba(14, 165, 233, 0.3);
+      background: rgba(14, 165, 233, 0.1);
+    }
+
+    .author-result-card[data-source*="scholar"] .author-result-source {
+      color: #13805b;
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
     .author-search-toolbar {
       display: flex;
       align-items: center;
@@ -3595,7 +3632,7 @@
         works_count: numberOrNull(candidate.works_count),
         citations: numberOrNull(candidate.citations),
         h_index: numberOrNull(candidate.h_index),
-        citation_label: String(candidate.citation_label || 'cited by'),
+        citation_label: 'Google Scholar citations',
         avatar,
         scholarLink,
         source: 'google_scholar_import'
@@ -3832,6 +3869,13 @@
       if (normalizedSource.includes('openalex')) return 'OpenAlex';
       if (normalizedSource.includes('scholar')) return 'Google Scholar';
       return 'Imported profile';
+    }
+
+    function getCitationLabel(author) {
+      const normalizedSource = String(author?.source || '').toLowerCase();
+      if (normalizedSource.includes('openalex')) return 'OpenAlex citations';
+      if (normalizedSource.includes('scholar')) return 'Google Scholar citations';
+      return String(author?.citation_label || 'citations');
     }
 
     function buildCompareScholar(author, papers = []) {
@@ -5443,9 +5487,10 @@
         const matchDetails = getAuthorMatchDetails(query, a);
         const hasPaperCount = a.works_count !== null && a.works_count !== undefined;
         const hasCitationCount = a.citations !== null && a.citations !== undefined;
+        const sourceLabel = getSourceLabel(a.source);
         const statsHtml = [
           hasPaperCount ? `<span><strong>${Number(a.works_count || 0).toLocaleString()}</strong> papers</span>` : '',
-          hasCitationCount ? `<span><strong>${Number(a.citations || 0).toLocaleString()}</strong> ${escapeHtml(a.citation_label || 'citations')}</span>` : '',
+          hasCitationCount ? `<span><strong>${Number(a.citations || 0).toLocaleString()}</strong> ${escapeHtml(getCitationLabel(a))}</span>` : '',
           a.h_index ? `<span>h: <strong>${a.h_index}</strong></span>` : ''
         ].filter(Boolean).join('');
 
@@ -5456,7 +5501,10 @@
               ${avatarHtml}
             </div>
             <div class="author-result-info">
-              <div class="author-result-match">${escapeHtml(a.match_label || matchDetails.label)}</div>
+              <div class="author-result-match-row">
+                <div class="author-result-match">${escapeHtml(a.match_label || matchDetails.label)}</div>
+                <span class="author-result-source" title="Metric source">${escapeHtml(sourceLabel)}</span>
+              </div>
               <div class="author-result-name">${escapeHtml(a.name)}</div>
               <div class="author-result-affil" title="${escapeHtml(a.affiliation || '')}">${escapeHtml(a.affiliation || 'Academic Researcher')}</div>
               <div class="author-result-stats">
