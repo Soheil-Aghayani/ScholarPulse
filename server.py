@@ -798,6 +798,7 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                     works_cnt = a.get('works_count', 0)
                     cites_cnt = a.get('cited_by_count', 0)
                     h_idx = a.get('summary_stats', {}).get('h_index', 0)
+                    i10_idx = a.get('summary_stats', {}).get('i10_index', 0)
                     aid = a.get('id', '').split('/')[-1]
                     
                     if not any(r['name'].lower() == name.lower() for r in results):
@@ -809,6 +810,7 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                             "works_count": works_cnt,
                             "citations": cites_cnt,
                             "h_index": h_idx,
+                            "i10_index": i10_idx,
                             "avatar": avatar_url,
                             "image_url": a.get('image_url') or "",
                             "image_thumbnail_url": a.get('image_thumbnail_url') or "",
@@ -842,6 +844,7 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                             works_cnt = a.get('works_count', 0)
                             cites_cnt = a.get('cited_by_count', 0)
                             h_idx = a.get('summary_stats', {}).get('h_index', 0)
+                            i10_idx = a.get('summary_stats', {}).get('i10_index', 0)
                             aid = a.get('id', '').split('/')[-1]
                             if (
                                 author_match_score(q, name, inst) >= 0.46
@@ -855,6 +858,7 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                                     "works_count": works_cnt,
                                     "citations": cites_cnt,
                                     "h_index": h_idx,
+                                    "i10_index": i10_idx,
                                     "avatar": avatar_url,
                                     "image_url": a.get('image_url') or "",
                                     "image_thumbnail_url": a.get('image_thumbnail_url') or "",
@@ -955,7 +959,9 @@ class ScholarHandler(http.server.SimpleHTTPRequestHandler):
                             "email": "",
                             "avatar": f"https://api.dicebear.com/7.x/notionists/svg?seed={urllib.parse.quote(author_name)}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf",
                             "interests": [t.get('display_name', '') for t in a_meta.get('x_concepts', [])[:5]],
+                            "source": "openalex",
                             "stats": {
+                                "works_count": a_meta.get('works_count', len(alex_papers)),
                                 "citations": a_meta.get('cited_by_count', 0),
                                 "h_index": a_meta.get('summary_stats', {}).get('h_index', 0),
                                 "i10_index": a_meta.get('summary_stats', {}).get('i10_index', 0)

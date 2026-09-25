@@ -3335,28 +3335,21 @@
       return `<img src="${escapeHtml(avatarSrc)}" data-fallback-src="${escapeHtml(fallbackSrc)}" alt="${escapeHtml(name)} profile picture" loading="lazy" decoding="async" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;">`;
     }
 
+    function setMetricSubtext(metric, text) {
+      const target = metric?.closest('.metric-card')?.querySelector('.metric-sub');
+      if (target) target.innerText = text;
+    }
+
     /* Set Dataset & Compute Analytics */
     function setDataset(author, papers) {
       state.author = author;
       state.rawPapers = papers;
 
-      const totalPapers = papers.length;
-      let totalCitations = 0;
-      const citationList = [];
-
-      papers.forEach(p => {
-        totalCitations += (p.citations || 0);
-        citationList.push(p.citations || 0);
-      });
-
-      citationList.sort((a, b) => b - a);
-      let hIndex = 0;
-      for (let i = 0; i < citationList.length; i++) {
-        if (citationList[i] >= i + 1) hIndex = i + 1;
-        else break;
-      }
-
-      const i10Index = citationList.filter(c => c >= 10).length;
+      const metrics = getProfileMetrics(author, papers);
+      const totalPapers = metrics.works_count ?? 0;
+      const totalCitations = metrics.citations ?? 0;
+      const hIndex = metrics.h_index ?? 0;
+      const i10Index = metrics.i10_index ?? 0;
       const avgCitations = totalPapers > 0 ? (totalCitations / totalPapers).toFixed(1) : 0;
 
       dom.authorCard.style.display = 'flex';
@@ -3387,6 +3380,18 @@
       dom.metricHIndex.innerText = hIndex.toLocaleString();
       dom.metricI10Index.innerText = i10Index.toLocaleString();
       dom.metricAvgCitations.innerText = avgCitations;
+
+      const profileCaption = getSourceLabel(author?.source) + ' profile';
+      setMetricSubtext(dom.metricTotalPapers, metrics.profile_metrics.works_count ? profileCaption : 'Loaded titles');
+      setMetricSubtext(dom.metricTotalCitations, metrics.profile_metrics.citations ? profileCaption + ' cumulative' : 'Loaded titles');
+      setMetricSubtext(dom.metricHIndex, metrics.profile_metrics.h_index ? profileCaption : 'Computed');
+      setMetricSubtext(dom.metricI10Index, metrics.profile_metrics.i10_index ? profileCaption : '≥ 10 citations');
+      setMetricSubtext(
+        dom.metricAvgCitations,
+        metrics.profile_metrics.works_count && metrics.profile_metrics.citations
+          ? profileCaption + ' ratio'
+          : 'Impact ratio'
+      );
 
       applyFilterAndSort();
     }
@@ -3603,6 +3608,14 @@
       if (value === null || value === undefined || value === '') return null;
       const number = Number(value);
       return Number.isFinite(number) ? number : null;
+    }
+
+    function firstNumberOrNull(...values) {
+      for (const value of values) {
+        const number = numberOrNull(value);
+        if (number !== null) return number;
+      }
+      return null;
     }
 
     const SCHOLAR_IMPORT_TARGET = 'https://soheil-aghayani.github.io/ScholarPulse/';
@@ -3848,19 +3861,29 @@
     }
 
     function getProfileMetrics(author, papers = []) {
-      const paperCount = numberOrNull(author?.works_count) ?? (papers.length ? papers.length : null);
+      const sourceStats = author?.stats && typeof author.stats === 'object' ? author.stats : {};
+      const profilePaperCount = firstNumberOrNull(author?.works_count, author?.worksCount, sourceStats.works_count);
+      const profileCitations = firstNumberOrNull(author?.citations, author?.cited_by_count, sourceStats.citations, sourceStats.cited_by_count);
+      const profileHIndex = firstNumberOrNull(author?.h_index, author?.hIndex, sourceStats.h_index, sourceStats.hIndex);
+      const profileI10Index = firstNumberOrNull(author?.i10_index, author?.i10Index, sourceStats.i10_index, sourceStats.i10Index);
       const paperCitations = papers.reduce((sum, paper) => sum + (numberOrNull(paper?.citations) ?? 0), 0);
-      const citations = numberOrNull(author?.citations ?? author?.cited_by_count)
-        ?? (papers.length ? paperCitations : null);
-      const hIndex = numberOrNull(author?.h_index ?? author?.hIndex) ?? computeHIndex(papers);
-      const i10Index = numberOrNull(author?.i10_index ?? author?.i10Index)
+      const paperCount = profilePaperCount ?? (papers.length ? papers.length : null);
+      const citations = profileCitations ?? (papers.length ? paperCitations : null);
+      const hIndex = profileHIndex ?? computeHIndex(papers);
+      const i10Index = profileI10Index
         ?? (papers.length ? papers.filter(paper => (numberOrNull(paper?.citations) ?? 0) >= 10).length : null);
 
       return {
         works_count: paperCount,
         citations,
         h_index: hIndex,
-        i10_index: i10Index
+        i10_index: i10Index,
+        profile_metrics: {
+          works_count: profilePaperCount !== null,
+          citations: profileCitations !== null,
+          h_index: profileHIndex !== null,
+          i10_index: profileI10Index !== null
+        }
       };
     }
 
@@ -5385,6 +5408,7 @@
                 works_count: a.works_count || 0,
                 citations: a.cited_by_count || 0,
                 h_index: a.summary_stats?.h_index || 0,
+                i10_index: a.summary_stats?.i10_index ?? null,
                 image_url: a.image_url || '',
                 image_thumbnail_url: a.image_thumbnail_url || '',
                 avatar: a.image_url || a.image_thumbnail_url || getFallbackAvatarUrl(name),
@@ -5616,6 +5640,10 @@
                     email: '',
                     avatar: card.querySelector('img')?.currentSrc || card.querySelector('img')?.src || getFallbackAvatarUrl(aname),
                     interests: [],
+                    works_count: numberOrNull(a.works_count),
+                    citations: numberOrNull(a.citations),
+                    h_index: numberOrNull(a.h_index),
+                    i10_index: numberOrNull(a.i10_index),
                     scholarLink: `https://openalex.org/authors/${aid}`,
                     source: 'openalex'
                   };
